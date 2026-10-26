@@ -2,7 +2,7 @@
 
 # MyOmen
 
-Public source snapshot: [hajhamouddev/myomen-clean](https://github.com/hajhamouddev/myomen-clean). Developed and adapted from **orion-sense**; see [APP.md](APP.md) and existing attribution/license notices.
+Public source snapshot: [hajhamouddev/myomen-clean](https://github.com/hajhamouddev/myomen-clean). Developed by **Ahmad Hajhamoud**. MyOmen continues his own earlier **orion-sense** project for an Acer Predator desktop; he subsequently developed and renamed the HP OMEN version. The earlier Acer version is unpublished. See [APP.md](APP.md) for project history; existing license notices are preserved.
 
 Review status (26 October 2026): `python3 tests/test_logic.py` completed 113 passing checks with hardware and Qt stubbed. This is not physical-device validation. Raw ACPI/firmware dumps and binary research captures are excluded. Hardware-specific behavior and the performance claims in the historical design notes below have not been independently measured by this review.
 
