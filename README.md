@@ -2,6 +2,10 @@
 
 # MyOmen
 
+Public source snapshot: [hajhamouddev/myomen-clean](https://github.com/hajhamouddev/myomen-clean). Developed and adapted from **orion-sense**; see [APP.md](APP.md) and existing attribution/license notices.
+
+Review status (26 October 2026): `python3 tests/test_logic.py` completed 113 passing checks with hardware and Qt stubbed. This is not physical-device validation. Raw ACPI/firmware dumps and binary research captures are excluded. Hardware-specific behavior and the performance claims in the historical design notes below have not been independently measured by this review.
+
 ### Next-Generation Linux Control Suite & Hardware Hub for HP OMEN Laptops
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
@@ -13,7 +17,7 @@
 
 <br/>
 
-**MyOmen** is an autonomous, zero-crash hardware telemetry hub, thermal governor, and RGB lighting suite engineered specifically for **HP OMEN 15-dh1xxx** laptops running modern Linux distributions (Ubuntu 24.04+, Debian, Arch, Fedora).
+**MyOmen** is an hardware telemetry hub, thermal governor, and RGB lighting suite engineered specifically for **HP OMEN 15-dh1xxx** laptops running modern Linux distributions (Ubuntu 24.04+, Debian, Arch, Fedora).
 
 </div>
 
@@ -21,7 +25,7 @@
 
 ## ⚡ Architectural Highlights
 
-- **Zero-Crash Dynamic Hwmon Discovery**: Eliminates hardcoded `/sys/class/hwmon/hwmonX` paths. Dynamically resolves `hp-wmi`, `coretemp`, and `pch_cometlake` nodes across kernel probe reorders.
+- **Dynamic Hwmon Discovery**: Eliminates hardcoded `/sys/class/hwmon/hwmonX` paths. Dynamically resolves `hp-wmi`, `coretemp`, and `pch_cometlake` nodes across kernel probe reorders.
 - **Dedicated Background Telemetry QThread (`HardwareWorker`)**: Zero I/O on the main GUI thread. Offloads sysfs polling, RAPL power differentials, and NVML queries to an isolated worker emitting typed Qt signals.
 - **Adaptive Telemetry Polling**:
   - `1000ms` when UI is active & visible.
@@ -102,9 +106,9 @@ flowchart TD
 
 | Subsystem | Hardware Specification | Linux Driver / Interface | Status |
 | :--- | :--- | :--- | :--- |
-| **System Board** | HP 8746 (OMEN 15-dh1xxx) | `hp-wmi` (ACPI GMxx) | ✅ Fully Supported |
-| **CPU** | Intel Core i7-10750H (Comet Lake) | `coretemp` / `intel_rapl` | ✅ Zero-Crash Dynamic |
-| **GPU** | NVIDIA GeForce RTX 2060 Mobile | Proprietary Driver + NVML | ✅ Direct Sub-ms Query |
+| **System Board** | HP 8746 (OMEN 15-dh1xxx) | `hp-wmi` (ACPI GMxx) | Target board; physical validation pending |
+| **CPU** | Intel Core i7-10750H (Comet Lake) | `coretemp` / `intel_rapl` | ✅ Dynamic |
+| **GPU** | NVIDIA GeForce RTX 2060 Mobile | Proprietary Driver + NVML | NVML telemetry integration |
 | **Fans** | Dual EC High-Static Pressure | `hp-wmi` `fan1_input` / `fan2_input` | ✅ Live RPM & Max Toggle |
 | **Keyboard** | 4-Zone RGB Zoned Backlight | `leds-hp-wmi` sysfs nodes | ✅ 10 Presets & Dimming |
 | **Audio** | Bang & Olufsen Stereo Speakers | PipeWire Filter-Chain | ✅ -1.0 dBFS Brickwall Limiter |
