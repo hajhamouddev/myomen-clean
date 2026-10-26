@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MyOmen - High-Fidelity Design System</title>
+<style>
+  :root {
+    --bg-canvas: #0B0C0E;
+    --bg-card: #141518;
+    --border-card: #282828;
+    --accent-cyan: #00B4D8;
+    --accent-crimson: #FF1A35;
+    --accent-green: #1DB954;
+    --text-primary: #FFFFFF;
+    --text-muted: #8E8E93;
+    --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, sans-serif;
+    --font-mono: "SF Mono", "JetBrains Mono", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-stack); }
+  body { background: #050506; color: var(--text-primary); padding: 30px; display: flex; flex-direction: column; align-items: center; }
+  
+  /* Swatches Header */
+  .swatches { display: flex; gap: 16px; margin-bottom: 24px; width: 1000px; }
+  .swatch-card { flex: 1; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 8px; padding: 12px; }
+  .swatch-box { height: 32px; border-radius: 4px; margin-bottom: 8px; }
+  .swatch-label { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+  .swatch-val { font-size: 10px; font-family: var(--font-mono); color: var(--text-muted); }
+
+  /* Main Window */
+  .window {
+    width: 1000px; height: 640px; background: var(--bg-canvas); border-radius: 16px;
+    border: 1px solid var(--border-card); display: flex; overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+  }
+  
+  /* Sidebar */
+  .sidebar { width: 240px; background: #0B0C0E; border-right: 1px solid var(--border-card); padding: 24px 16px; display: flex; flex-direction: column; }
+  .brand { display: flex; align-items: center; gap: 8px; margin-bottom: 28px; padding-left: 8px; font-weight: 700; font-size: 16px; }
+  .brand-icon { color: var(--accent-crimson); font-size: 16px; }
+  .nav-item {
+    display: flex; align-items: center; padding: 10px 14px; border-radius: 8px;
+    color: var(--text-muted); font-size: 13px; font-weight: 500; margin-bottom: 6px; cursor: pointer;
+  }
+  .nav-item.active { background: #1C1D22; color: #FFF; border: 1px solid #282828; }
+  
+  /* Content Area */
+  .main { flex: 1; padding: 28px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; }
+  .header-row { display: flex; justify-content: space-between; align-items: flex-start; }
+  .header-title { font-size: 20px; font-weight: 700; }
+  .header-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .header-badge { font-family: var(--font-mono); font-size: 11px; background: #141518; border: 1px solid var(--border-card); padding: 6px 12px; border-radius: 6px; color: var(--text-muted); }
+
+  /* Cards */
+  .card { background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 12px; padding: 20px; }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .card-title { font-size: 13px; font-weight: 600; color: #FFF; }
+  
+  /* Telemetry Splines Card */
+  .telemetry-metrics { display: flex; gap: 24px; text-align: right; }
+  .stat-group { display: flex; flex-direction: column; }
+  .stat-tag { font-size: 10px; font-weight: 600; color: var(--text-muted); font-family: var(--font-mono); }
+  .stat-val { font-size: 22px; font-weight: 700; font-family: var(--font-mono); }
+  .stat-sub { font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); }
+
+  /* Dual Grid */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  
+  /* Segmented Controls */
+  .segmented-group { display: flex; background: #0B0C0E; border: 1px solid var(--border-card); border-radius: 8px; padding: 4px; gap: 4px; margin-top: 14px; }
+  .seg-btn { flex: 1; text-align: center; padding: 8px 12px; font-size: 12px; font-weight: 600; color: var(--text-muted); border-radius: 6px; cursor: pointer; }
+  .seg-btn.active { color: var(--accent-cyan); border: 1px solid var(--accent-cyan); background: rgba(0, 180, 216, 0.05); }
+  
+  /* Fan Bars */
+  .fan-row { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 12px; }
+  .fan-name { color: var(--text-muted); }
+  .fan-val { font-family: var(--font-mono); font-weight: 600; }
+  .fan-bar { width: 100%; height: 4px; background: #222; border-radius: 2px; margin-top: 6px; overflow: hidden; }
+  .fan-bar-fill { height: 100%; background: var(--accent-cyan); width: 55%; }
+</style>
+</head>
+<body>
+
+<div class="swatches">
+  <div class="swatch-card"><div class="swatch-box" style="background:#0B0C0E; border:1px solid #282828"></div><div class="swatch-label">Canvas Background</div><div class="swatch-val">#0B0C0E</div></div>
+  <div class="swatch-card"><div class="swatch-box" style="background:#141518"></div><div class="swatch-label">Surface / Card</div><div class="swatch-val">#141518</div></div>
+  <div class="swatch-card"><div class="swatch-box" style="background:#00B4D8"></div><div class="swatch-label">Balanced State (Cyan)</div><div class="swatch-val">#00B4D8</div></div>
+  <div class="swatch-card"><div class="swatch-box" style="background:#FF1A35"></div><div class="swatch-label">Performance High (Crimson)</div><div class="swatch-val">#FF1A35</div></div>
+</div>
+
+<div class="window">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="brand"><span class="brand-icon">◆</span> MyOmen Hub</div>
+    <div class="nav-item active">Overview</div>
+    <div class="nav-item">Performance Modes</div>
+    <div class="nav-item">4-Zone Lighting</div>
+    <div class="nav-item">PipeWire Audio DSP</div>
+    <div class="nav-item">System & Drivers</div>
+  </div>
+
+  <!-- Main View -->
+  <div class="main">
+    <div class="header-row">
+      <div>
+        <div class="header-title">System Overview</div>
+        <div class="header-sub">Omen Autopilot Active • Non-root udev rules</div>
+      </div>
+      <div class="header-badge">OMEN 15-dh1xxx | RTX 2060 | F.44</div>
+    </div>
+
+    <!-- Live Telemetry Card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Hardware Telemetry (Live Splines)</div>
+        <div class="telemetry-metrics">
+          <div class="stat-group">
+            <span class="stat-tag">CPU CORETEMP</span>
+            <span class="stat-val" style="color:var(--accent-green)">58 °C</span>
+            <span class="stat-sub">28.4W RAPL</span>
+          </div>
+          <div class="stat-group">
+            <span class="stat-tag">GPU RTX 2060</span>
+            <span class="stat-val" style="color:var(--accent-cyan)">51 °C</span>
+            <span class="stat-sub">22.1W NVML</span>
+          </div>
+        </div>
+      </div>
+      <svg viewBox="0 0 700 80" style="width:100%; height:80px; margin-top:10px;">
+        <defs>
+          <linearGradient id="cyanGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#00B4D8" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#00B4D8" stop-opacity="0.0"/>
+          </linearGradient>
+        </defs>
+        <path d="M0,60 Q180,30 350,55 T700,20 L700,80 L0,80 Z" fill="url(#cyanGrad)"/>
+        <path d="M0,60 Q180,30 350,55 T700,20" fill="none" stroke="#00B4D8" stroke-width="2"/>
+        <path d="M0,45 Q180,20 350,40 T700,10" fill="none" stroke="#1DB954" stroke-width="2"/>
+      </svg>
+    </div>
+
+    <!-- Bottom Split Grid -->
+    <div class="grid-2">
+      <!-- Power Profile Card -->
+      <div class="card">
+        <div class="card-title">Power Platform Profile</div>
+        <div class="segmented-group">
+          <div class="seg-btn">Quiet</div>
+          <div class="seg-btn active">Balanced</div>
+          <div class="seg-btn">Performance</div>
+        </div>
+        <div style="font-size:10px; color:var(--text-muted); font-family:var(--font-mono); margin-top:14px;">
+          ACPI sysfs: /sys/firmware/acpi/platform_profile
+        </div>
+      </div>
+
+      <!-- Fans Card -->
+      <div class="card">
+        <div class="card-title">Omen Autopilot Fans</div>
+        <div class="fan-row">
+          <span class="fan-name">CPU Fan (hp_wmi fan1)</span>
+          <span class="fan-val">2450 RPM</span>
+        </div>
+        <div class="fan-bar"><div class="fan-bar-fill" style="width: 58%;"></div></div>
+
+        <div class="fan-row" style="margin-top:14px;">
+          <span class="fan-name">GPU Fan (hp_wmi fan2)</span>
+          <span class="fan-val">2100 RPM</span>
+        </div>
+        <div class="fan-bar"><div class="fan-bar-fill" style="width: 48%;"></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,24 @@
+# Let a desktop user drive MyOmen hardware (board 8746) without root.
+#
+# sysfs attributes are recreated every time hp-wmi loads, and chmod/chown on
+# them do not survive that - so this has to be a udev rule, not a one-off
+# permission change. It grants the plugdev group, the conventional group for
+# user-accessible hardware, rather than opening the files to everyone.
+#
+# What that exposes, and why it is bounded: the three platform modes and the
+# keyboard colours, all of whose firmware payloads were observed from HP's own
+# software on this machine, and max fan on/off. The CPU and GPU throttle
+# themselves in silicon, and firmware auto is always one write away.
+#
+# hwmon is matched on ATTR{name} rather than on hwmonN, because that number is
+# assigned in probe order and changes.
+
+ACTION=="add", SUBSYSTEM=="leds", KERNEL=="hp::kbd_zoned_backlight-*", \
+  RUN+="/usr/bin/chgrp plugdev /sys%p/brightness /sys%p/multi_intensity", \
+  RUN+="/usr/bin/chmod g+w /sys%p/brightness /sys%p/multi_intensity"
+
+ACTION=="add", SUBSYSTEM=="hwmon", ATTR{name}=="hp", \
+  RUN+="/bin/sh -c 'chgrp plugdev /sys%p/pwm1_enable && chmod g+w /sys%p/pwm1_enable'"
+
+ACTION=="add", SUBSYSTEM=="platform-profile", ATTR{name}=="hp-wmi", \
+  RUN+="/bin/sh -c 'chgrp plugdev /sys%p/profile && chmod g+w /sys%p/profile'"

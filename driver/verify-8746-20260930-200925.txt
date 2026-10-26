@@ -1,0 +1,49 @@
+== module
+7.0.0-34-generic
+file:   /lib/modules/7.0.0-34-generic/updates/dkms/hp-wmi.ko.zst
+signer: <local module signing certificate>
+hp_wmi                 49152  0
+[43146.149054] hp_wmi: board 8746 quirk: fan RPM via query 0x2D, profile at EC 0x29
+[43146.207090] hp_wmi: Registered as platform profile handler
+
+== platform_profile
+choices: low-power balanced performance
+current: balanced   EC[0x29]=0x80
+on AC:   1
+
+== fans (EC[0x11] is an independent RPM/100 cross-check)
+fan1=1800 fan2=2000  EC[0x11]=0x12
+fan1=1800 fan2=2000  EC[0x11]=0x12
+fan1=1800 fan2=2000  EC[0x11]=0x12
+
+== profile holds still (event 0x1B loop check)
+20 reads over 2s: balanced 
+OK: stable
+
+== profile round trip
+low-power    -> reads low-power    EC[0x29]=0x82  fan1=1900 fan2=1900
+performance  -> reads performance  EC[0x29]=0x81  fan1=1800 fan2=2000
+balanced     -> reads balanced     EC[0x29]=0x80  fan1=1800 fan2=2000
+expect EC[0x29] low bits: low-power(cool)=2 performance=1 balanced=0
+
+== keyboard RGB (kbd-rgb-v11.patch)
+hp::kbd_zoned_backlight-center           brightness=0   intensity=0 0 0
+hp::kbd_zoned_backlight-left             brightness=0   intensity=0 0 0
+hp::kbd_zoned_backlight-right            brightness=0   intensity=0 0 0
+hp::kbd_zoned_backlight-wasd             brightness=0   intensity=0 0 0
+backlight off - colour round trip skipped (turn it on with the backlight key to test)
+
+== power-profiles-daemon
+  performance:
+    CpuDriver:	intel_pstate
+    Degraded:   no
+
+* balanced:
+    CpuDriver:	intel_pstate
+    PlatformDriver:	placeholder
+
+  power-saver:
+    CpuDriver:	intel_pstate
+    PlatformDriver:	placeholder
+
+Saved to: <project>/driver/verify-8746-20260930-200925.txt

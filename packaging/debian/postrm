@@ -1,0 +1,27 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
+    # Reload udev rules upon removal or purge
+    if command -v udevadm >/dev/null 2>&1; then
+        udevadm control --reload-rules || true
+        udevadm trigger || true
+    fi
+
+    # Refresh desktop database
+    if command -v update-desktop-database >/dev/null 2>&1; then
+        update-desktop-database /usr/share/applications 2>/dev/null || true
+    fi
+
+    # Refresh icon cache
+    if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+        gtk-update-icon-cache -f -t /usr/share/icons/hicolor 2>/dev/null || true
+    fi
+
+    # Reload systemd daemon
+    if command -v systemctl >/dev/null 2>&1; then
+        systemctl --global daemon-reload 2>/dev/null || true
+    fi
+fi
+
+exit 0

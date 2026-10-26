@@ -1,0 +1,11 @@
+Package: myomen
+Version: 1.0.0
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: Haj Hamoud <hajhamoud@local>
+Depends: python3 (>= 3.10), lm-sensors, pipewire, wireplumber, libnotify-bin
+Description: Lightweight hardware telemetry and fan control hub for HP OMEN laptops.
+ A modern, lightweight hardware telemetry monitor, dynamic fan controller,
+ 4-zone RGB keyboard lighting manager, and PipeWire DSP audio peak limiter
+ designed specifically for HP OMEN laptops running Linux.

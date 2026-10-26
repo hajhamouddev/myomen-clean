@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=MyOmen
+Comment=HP OMEN Linux Control Hub
+Exec=myomen
+Icon=myomen
+Terminal=false
+Type=Application
+Categories=Settings;HardwareSettings;System;
+StartupWMClass=myomen

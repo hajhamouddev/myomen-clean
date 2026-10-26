@@ -1,0 +1,36 @@
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Distribution & Packaging
+packaging/deb/
+dist/
+build/
+*.egg-info/
+
+# Local data & backups
+local/
+OmenSense-backup/
+System Volume Information/
+*.log
+.pytest_cache/
+.DS_Store
+prompt*.md
+
+# Private credentials and local machine data
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+auth.json
+credentials.json
+/.agents/skills
+/research/bios-settings.txt
+/research/private/
+/private/

@@ -1,0 +1,677 @@
+
+==================== 1. Identity
+
+$ uname -a
+Linux kubuntu 7.0.0-30-generic #30-Ubuntu SMP PREEMPT_DYNAMIC Fri Jul 31 18:22:54 UTC 2026 x86_64 GNU/Linux
+/sys/class/dmi/id/sys_vendor = HP
+/sys/class/dmi/id/product_name = OMEN by HP Laptop 15-dh1xxx
+/sys/class/dmi/id/board_name = 8746
+/sys/class/dmi/id/board_version = 04.35
+/sys/class/dmi/id/bios_version = F.44
+/sys/class/dmi/id/bios_date = 08/12/2024
+
+$ cat /proc/cmdline
+BOOT_IMAGE=/casper/vmlinuz --- quiet splash
+
+$ cat /sys/kernel/security/lockdown
+none [integrity] confidentiality
+
+$ mokutil --sb-state
+SecureBoot enabled
+
+==================== 2. Drivers and WMI devices
+
+$ lsmod
+Module                  Size  Used by
+exfat                 122880  1
+ccm                    20480  3
+rfcomm                110592  6
+snd_seq_dummy          12288  0
+snd_hrtimer            12288  1
+qrtr                   53248  2
+cmac                   12288  3
+algif_hash             20480  1
+algif_skcipher         12288  1
+af_alg                 32768  6 algif_hash,algif_skcipher
+bnep                   32768  2
+snd_ctl_led            28672  0
+snd_soc_skl_hda_dsp    16384  4
+snd_soc_intel_sof_board_helpers    28672  1 snd_soc_skl_hda_dsp
+snd_soc_intel_hda_dsp_common    16384  1 snd_soc_intel_sof_board_helpers
+snd_sof_probes         32768  0
+snd_hda_codec_alc269   151552  1
+snd_hda_codec_realtek_lib    65536  1 snd_hda_codec_alc269
+snd_hda_scodec_component    20480  1 snd_hda_codec_alc269
+snd_hda_codec_generic   126976  2 snd_hda_codec_realtek_lib,snd_hda_codec_alc269
+snd_soc_dmic           12288  1
+snd_sof_pci_intel_cnl    20480  0
+snd_sof_intel_hda_generic    40960  1 snd_sof_pci_intel_cnl
+soundwire_intel        86016  1 snd_sof_intel_hda_generic
+snd_sof_intel_hda_sdw_bpt    20480  1 soundwire_intel
+snd_sof_intel_hda_common   200704  3 snd_sof_intel_hda_sdw_bpt,snd_sof_intel_hda_generic,snd_sof_pci_intel_cnl
+snd_soc_hdac_hda       20480  1 snd_sof_intel_hda_common
+snd_sof_intel_hda_mlink    45056  4 snd_sof_intel_hda_sdw_bpt,soundwire_intel,snd_sof_intel_hda_common,snd_sof_intel_hda_generic
+snd_sof_intel_hda      24576  2 snd_sof_intel_hda_common,snd_sof_intel_hda_generic
+soundwire_cadence      53248  1 soundwire_intel
+snd_sof_pci            24576  2 snd_sof_intel_hda_generic,snd_sof_pci_intel_cnl
+snd_sof_xtensa_dsp     12288  1 snd_sof_intel_hda_generic
+snd_sof               438272  7 snd_sof_intel_hda_sdw_bpt,snd_sof_pci,snd_sof_intel_hda_common,snd_sof_intel_hda_generic,snd_sof_probes,snd_sof_intel_hda,snd_sof_pci_intel_cnl
+snd_sof_utils          16384  1 snd_sof
+snd_soc_acpi_intel_match   147456  3 snd_soc_intel_sof_board_helpers,snd_sof_intel_hda_generic,snd_sof_pci_intel_cnl
+snd_soc_acpi_intel_sdca_quirks    12288  1 snd_soc_acpi_intel_match
+soundwire_generic_allocation    24576  1 soundwire_intel
+snd_soc_sdw_utils     126976  1 snd_sof_intel_hda_generic
+snd_soc_acpi           16384  2 snd_soc_acpi_intel_match,snd_sof_intel_hda_generic
+soundwire_bus        1183744  4 soundwire_intel,snd_soc_sdw_utils,soundwire_generic_allocation,soundwire_cadence
+snd_soc_sdca          126976  2 snd_soc_acpi_intel_sdca_quirks,soundwire_bus
+crc8                   12288  1 soundwire_cadence
+snd_hda_codec_nvhdmi    16384  1
+snd_hda_codec_hdmi     65536  1 snd_hda_codec_nvhdmi
+snd_soc_avs           233472  0
+intel_rapl_msr         20480  0
+intel_rapl_common      57344  1 intel_rapl_msr
+snd_soc_hda_codec      24576  1 snd_soc_avs
+snd_hda_intel          65536  1
+iwlmvm                868352  0
+snd_hda_ext_core       32768  7 snd_sof_intel_hda_sdw_bpt,snd_soc_avs,snd_soc_hda_codec,snd_sof_intel_hda_common,snd_soc_hdac_hda,snd_sof_intel_hda_mlink,snd_sof_intel_hda
+snd_soc_core          446464  12 snd_soc_avs,snd_soc_hda_codec,soundwire_intel,snd_sof,snd_soc_intel_sof_board_helpers,snd_soc_sdca,snd_sof_intel_hda_common,snd_soc_sdw_utils,snd_soc_hdac_hda,snd_sof_probes,snd_soc_dmic,snd_soc_skl_hda_dsp
+snd_hda_codec         212992  12 snd_hda_codec_generic,snd_soc_avs,snd_hda_codec_hdmi,snd_soc_hda_codec,snd_hda_intel,snd_hda_codec_nvhdmi,snd_soc_intel_hda_dsp_common,snd_hda_codec_realtek_lib,snd_soc_hdac_hda,snd_hda_codec_alc269,snd_sof_intel_hda,snd_soc_skl_hda_dsp
+snd_hda_core          151552  13 snd_hda_codec_generic,snd_soc_avs,snd_hda_codec_hdmi,snd_soc_hda_codec,snd_hda_intel,snd_hda_ext_core,snd_hda_codec,snd_soc_intel_hda_dsp_common,snd_sof_intel_hda_common,snd_hda_codec_realtek_lib,snd_soc_hdac_hda,snd_hda_codec_alc269,snd_sof_intel_hda
+snd_intel_dspcfg       45056  5 snd_soc_avs,snd_hda_intel,snd_sof,snd_sof_intel_hda_common,snd_sof_intel_hda_generic
+snd_compress           40960  3 snd_soc_avs,snd_soc_core,snd_sof_probes
+snd_intel_sdw_acpi     16384  2 snd_intel_dspcfg,snd_sof_intel_hda_generic
+ac97_bus               12288  1 snd_soc_core
+snd_pcm_dmaengine      20480  1 snd_soc_core
+snd_hwdep              24576  1 snd_hda_codec
+mac80211             1933312  1 iwlmvm
+snd_pcm               208896  14 snd_soc_avs,snd_hda_codec_hdmi,snd_hda_intel,snd_hda_codec,soundwire_intel,snd_sof,snd_soc_sdca,snd_sof_intel_hda_common,snd_compress,snd_sof_intel_hda_generic,snd_soc_core,snd_sof_utils,snd_hda_core,snd_pcm_dmaengine
+uvcvideo              147456  0
+intel_uncore_frequency    12288  0
+nouveau              3178496  97
+snd_seq_midi           24576  0
+intel_uncore_frequency_common    20480  1 intel_uncore_frequency
+videobuf2_vmalloc      20480  1 uvcvideo
+uvc                    12288  1 uvcvideo
+videobuf2_memops       16384  1 videobuf2_vmalloc
+videobuf2_v4l2         36864  1 uvcvideo
+snd_seq_midi_event     16384  1 snd_seq_midi
+libarc4                12288  1 mac80211
+videobuf2_common       90112  4 videobuf2_vmalloc,videobuf2_v4l2,uvcvideo,videobuf2_memops
+videodev              376832  2 videobuf2_v4l2,uvcvideo
+snd_rawmidi            57344  1 snd_seq_midi
+mc                     90112  4 videodev,videobuf2_v4l2,uvcvideo,videobuf2_common
+cmdlinepart            16384  0
+gpu_sched              69632  1 nouveau
+snd_seq               126976  9 snd_seq_midi,snd_seq_midi_event,snd_seq_dummy
+drm_gpuvm              57344  1 nouveau
+drm_ttm_helper         20480  1 nouveau
+ttm                   135168  2 drm_ttm_helper,nouveau
+spi_nor               180224  0
+drm_exec               12288  2 drm_gpuvm,nouveau
+intel_tcc_cooling      12288  0
+ee1004                 16384  0
+drm_display_helper    303104  1 nouveau
+cec                   106496  1 drm_display_helper
+x86_pkg_temp_thermal    20480  0
+mtd                   106496  3 spi_nor,cmdlinepart
+rc_core                81920  1 cec
+i2c_algo_bit           16384  1 nouveau
+snd_seq_device         16384  3 snd_seq,snd_seq_midi,snd_rawmidi
+snd_timer              53248  3 snd_seq,snd_hrtimer,snd_pcm
+intel_powerclamp       28672  0
+ucsi_ccg               24576  0
+binfmt_misc            24576  1
+coretemp               24576  0
+snd                   147456  30 snd_ctl_led,snd_hda_codec_generic,snd_seq,snd_seq_device,snd_hda_codec_hdmi,snd_hwdep,snd_hda_intel,snd_hda_codec,snd_sof,snd_soc_sdca,snd_timer,snd_hda_codec_realtek_lib,snd_compress,snd_soc_sdw_utils,snd_hda_codec_alc269,snd_soc_core,snd_pcm,snd_rawmidi
+kvm_intel             552960  0
+soundcore              16384  2 snd_ctl_led,snd
+btusb                  81920  0
+kvm                  1527808  1 kvm_intel
+iwlwifi               655360  1 iwlmvm
+btmtk                  36864  1 btusb
+btrtl                  36864  1 btusb
+btbcm                  24576  1 btusb
+btintel                69632  1 btusb
+bluetooth            1134592  34 btrtl,btmtk,btintel,btbcm,bnep,btusb,rfcomm
+irqbypass              16384  1 kvm
+mei_hdcp               28672  0
+mei_pxp                16384  0
+i2c_i801               36864  0
+spi_intel_pci          12288  0
+hp_bioscfg             81920  0
+intel_pmc_core        151552  0
+spi_intel              36864  1 spi_intel_pci
+pmt_telemetry          16384  1 intel_pmc_core
+pmt_discovery          24576  1 pmt_telemetry
+pmt_class              20480  2 pmt_telemetry,pmt_discovery
+intel_pmc_ssram_telemetry    16384  1 intel_pmc_core
+intel_vsec             24576  2 intel_pmc_ssram_telemetry,pmt_telemetry
+firmware_attributes_class    12288  1 hp_bioscfg
+mei_me                 61440  2
+cfg80211             1536000  3 iwlmvm,iwlwifi,mac80211
+rapl                   20480  0
+hp_wmi                 45056  0
+i2c_nvidia_gpu         16384  0
+intel_cstate           20480  0
+i2c_smbus              20480  1 i2c_i801
+mei                   184320  5 mei_hdcp,mei_pxp,mei_me
+input_leds             12288  0
+i2c_mux                20480  1 i2c_i801
+wmi_bmof               12288  0
+i2c_ccgx_ucsi          12288  1 i2c_nvidia_gpu
+intel_wmi_thunderbolt    12288  0
+sparse_keymap          12288  1 hp_wmi
+platform_profile       20480  1 hp_wmi
+intel_pch_thermal      20480  0
+joydev                 32768  0
+mac_hid                12288  0
+mxm_wmi                12288  1 nouveau
+wireless_hotkey        12288  0
+acpi_pad              184320  0
+acpi_tad               20480  0
+sch_fq_codel           28672  2
+lp                     32768  0
+ppdev                  24576  0
+msr                    12288  0
+parport                81920  2 lp,ppdev
+efi_pstore             12288  0
+dmi_sysfs              28672  0
+autofs4                61440  2
+overlay               233472  1
+isofs                  61440  1
+nls_iso8859_1          12288  0
+uas                    32768  0
+usb_storage            86016  4 uas
+usbhid                 86016  0
+hid_multitouch         36864  0
+nvme                   69632  0
+ucsi_acpi              12288  0
+hid_generic            12288  0
+nvme_core             241664  1 nvme
+typec_ucsi             77824  2 ucsi_ccg,ucsi_acpi
+typec                 126976  1 typec_ucsi
+sdhci_pci             106496  0
+nvme_keyring           20480  1 nvme_core
+i2c_hid_acpi           12288  0
+sdhci_uhs2             40960  1 sdhci_pci
+r8169                 151552  0
+video                  77824  1 nouveau
+intel_lpss_pci         28672  0
+i2c_hid                40960  1 i2c_hid_acpi
+nvme_auth              28672  1 nvme_core
+ahci                   53248  0
+sdhci                 106496  2 sdhci_uhs2,sdhci_pci
+intel_lpss             12288  1 intel_lpss_pci
+ghash_clmulni_intel    12288  0
+serio_raw              20480  0
+hid                   282624  5 i2c_hid,usbhid,hid_multitouch,snd_soc_sdca,hid_generic
+thunderbolt           569344  1 typec
+realtek                57344  1
+hkdf                   12288  1 nvme_auth
+pinctrl_cannonlake     36864  2
+wmi                    36864  7 hp_wmi,video,intel_wmi_thunderbolt,hp_bioscfg,wmi_bmof,mxm_wmi,nouveau
+libahci                57344  1 ahci
+cqhci                  40960  1 sdhci_pci
+idma64                 20480  0
+aesni_intel            98304  2
+
+$ ls /sys/bus/wmi/devices
+05901221-D566-11D1-B2F0-00A0C9062910
+05901221-D566-11D1-B2F0-00A0C9062910-1
+05901221-D566-11D1-B2F0-00A0C9062910-2
+14EA9746-CE1F-4098-A0E0-7045CB4DA745
+1E519311-3E75-4208-B05E-EBE17E3FF41F
+1F13AB7F-6220-4210-8F8E-8BB5E71EE969
+1F4C91EB-DC5C-460B-951D-C7CB9B4B8D5E
+2B814318-4BE8-4707-9D84-A190A859B5D0
+2BC49DEF-7B15-4F05-8BB7-EE37B9547C0B
+2D114B49-2DFB-4130-B8FE-4A3C09E75133
+322F2028-0F84-4901-988E-015176049E2D
+37F85341-4418-4F24-8533-38FFC7295542
+3ADEBD0F-0C5F-46ED-AB2E-04962B4FDCBC
+42848006-8886-490E-8C72-2BDCA93A8A09
+5FB7F034-2C63-45E9-BE91-3D44E2C707E4
+8232DE3D-663D-4327-A8F4-E293ADB9BF05
+86CCFD48-205E-4A77-9C48-2021CBEDE341
+921A2F40-0DC4-402D-AC18-B48444EF9ED2
+95F24279-4D7B-4334-9387-ACCDC67EF61C
+988D08E3-68F4-4C35-AF3E-6A1B8106F83C
+A486D8F8-0BDA-471B-A72B-6042A6B5BEE0
+A6FEA33E-DABF-46F5-BFC8-460D961BEC9F
+C12AD361-9FA9-4C74-901F-95CB0945CF3E
+CA4982BF-C230-458E-B12F-6F16475F351B
+E06BDE62-EE75-48F4-A583-B23E69ABF891
+F6CB5C3C-9CAE-4EBD-B577-931EA32A2CC0
+05901221-D566-11D1-B2F0-00A0C9062910  driver=wmi-bmof
+05901221-D566-11D1-B2F0-00A0C9062910-1  driver=wmi-bmof
+05901221-D566-11D1-B2F0-00A0C9062910-2  driver=wmi-bmof
+14EA9746-CE1F-4098-A0E0-7045CB4DA745  driver=
+1E519311-3E75-4208-B05E-EBE17E3FF41F  driver=
+1F13AB7F-6220-4210-8F8E-8BB5E71EE969  driver=
+1F4C91EB-DC5C-460B-951D-C7CB9B4B8D5E  driver=
+2B814318-4BE8-4707-9D84-A190A859B5D0  driver=
+2BC49DEF-7B15-4F05-8BB7-EE37B9547C0B  driver=
+2D114B49-2DFB-4130-B8FE-4A3C09E75133  driver=
+322F2028-0F84-4901-988E-015176049E2D  driver=
+37F85341-4418-4F24-8533-38FFC7295542  driver=
+3ADEBD0F-0C5F-46ED-AB2E-04962B4FDCBC  driver=
+42848006-8886-490E-8C72-2BDCA93A8A09  driver=
+5FB7F034-2C63-45E9-BE91-3D44E2C707E4  driver=hp-bioscfg
+8232DE3D-663D-4327-A8F4-E293ADB9BF05  driver=
+86CCFD48-205E-4A77-9C48-2021CBEDE341  driver=intel-wmi-thunderbolt
+921A2F40-0DC4-402D-AC18-B48444EF9ED2  driver=
+95F24279-4D7B-4334-9387-ACCDC67EF61C  driver=
+988D08E3-68F4-4C35-AF3E-6A1B8106F83C  driver=
+A486D8F8-0BDA-471B-A72B-6042A6B5BEE0  driver=
+A6FEA33E-DABF-46F5-BFC8-460D961BEC9F  driver=
+C12AD361-9FA9-4C74-901F-95CB0945CF3E  driver=
+CA4982BF-C230-458E-B12F-6F16475F351B  driver=
+E06BDE62-EE75-48F4-A583-B23E69ABF891  driver=
+F6CB5C3C-9CAE-4EBD-B577-931EA32A2CC0  driver=
+
+==================== 3. Boot log (hp, wmi, ACPI errors)
+[    0.000000] BIOS-e820: [mem 0x00000000fec00000-0x00000000fec00fff]  device reserved
+[    0.000000] BIOS-e820: [gap 0x00000000fec01000-0x00000000fecfffff]
+[    0.000000] efi: Not removing mem88: MMIO range=[0xfec00000-0xfec00fff] (4KB) from e820 map
+[    0.013777] ACPI: BGRT 0x0000000058EEC000 000038 (v01 HPQOEM 8746     01072009 HP   00010013)
+[    0.013796] ACPI: Reserving BGRT table memory at [mem 0x58eec000-0x58eec037]
+[    0.015571] IOAPIC[0]: apic_id 2, version 32, address 0xfec00000, GSI 0-119
+[    0.158060] ACPI BIOS Error (bug): Could not resolve symbol [\_SB.PCI0.I2C2.TPD0], AE_NOT_FOUND (20251212/dswload2-162)
+[    0.158070] ACPI Error: AE_NOT_FOUND, During name lookup/catalog (20251212/psobject-220)
+[    0.158093] ACPI BIOS Error (bug): Could not resolve symbol [\_SB.PCI0.I2C3.TPL1], AE_NOT_FOUND (20251212/dswload2-162)
+[    0.158096] ACPI Error: AE_NOT_FOUND, During name lookup/catalog (20251212/psobject-220)
+[    0.252636] ACPI: \_SB_.PCI0.LPCB.EC0_: Boot DSDT EC used to handle transactions
+[    0.436395] ACPI BIOS Error (bug): \_SB.NPCF._STA: Excess arguments - ASL declared 4, ACPI requires 0 (20251212/nsarguments-162)
+[    0.483141] ACPI BIOS Error (bug): \_SB.NPCF._STA: Excess arguments - ASL declared 4, ACPI requires 0 (20251212/nsarguments-162)
+[    0.486201] ACPI: \_SB_.PCI0.LPCB.EC0_: Boot DSDT EC initialization complete
+[    0.486201] ACPI: \_SB_.PCI0.LPCB.EC0_: EC: Used to handle transactions and events
+[    0.563113] ACPI BIOS Error (bug): \_SB.NPCF._STA: Excess arguments - ASL declared 4, ACPI requires 0 (20251212/nsarguments-162)
+[    0.645786] Loaded X.509 cert 'Canonical Ltd. Live Patch Signing: 14df34d1a87cf37625abec039ef2bf521249b969'
+[    0.920313] wmi_bus wmi_bus-PNP0C14:01: [Firmware Bug]: WQXM data block query control method not found
+[    0.920727] wmi_bus wmi_bus-PNP0C14:05: [Firmware Info]: 8F1F6436-9F42-42C8-BADC-0E9424F20C9A has zero instances
+[    0.920729] wmi_bus wmi_bus-PNP0C14:05: [Firmware Info]: 8F1F6435-9F42-42C8-BADC-0E9424F20C9A has zero instances
+[    0.920730] wmi_bus wmi_bus-PNP0C14:05: [Firmware Info]: 7391A661-223A-47DB-A77A-7BE84C60822D has zero instances
+[    0.920731] wmi_bus wmi_bus-PNP0C14:05: [Firmware Info]: DF4E63B6-3BBC-4858-9737-C74F82F821F3 has zero instances
+[    0.966662] ACPI BIOS Error (bug): \_SB.NPCF._STA: Excess arguments - ASL declared 4, ACPI requires 0 (20251212/nsarguments-162)
+[    0.967789] ACPI BIOS Error (bug): \_SB.NPCF._STA: Excess arguments - ASL declared 4, ACPI requires 0 (20251212/nsarguments-162)
+[   26.955959] input: HP WMI hotkeys as /devices/virtual/input/input15
+[   27.750739] ACPI BIOS Error (bug): \_SB.NPCF._STA: Excess arguments - ASL declared 4, ACPI requires 0 (20251212/nsarguments-162)
+[   28.001183] ACPI BIOS Error (bug): AE_AML_BUFFER_LIMIT, Index (0x000000032) is beyond end of object (length 0x32) (20251212/exoparg2-393)
+[   28.001227] ACPI Error: Aborting method \_SB.WMID.WQBE due to previous error (AE_AML_BUFFER_LIMIT) (20251212/psparse-529)
+[   28.002343] hp_bioscfg: Returned error 0x3, "Invalid command value/Feature not supported"
+
+==================== 4. platform_profile at boot (before we touch anything)
+
+==================== 5. hwmon (finding §1 predicts fan1/fan2 = 0 RPM)
+
+[/sys/class/hwmon/hwmon0] name=ACAD
+
+[/sys/class/hwmon/hwmon1] name=acpitz
+
+[/sys/class/hwmon/hwmon2] name=BAT1
+
+[/sys/class/hwmon/hwmon3] name=nvme
+
+[/sys/class/hwmon/hwmon4] name=ucsi_source_psy_USBC000:001
+
+[/sys/class/hwmon/hwmon5] name=pch_cometlake
+
+[/sys/class/hwmon/hwmon6] name=hp
+device
+fan1_input
+fan2_input
+name
+power
+pwm1_enable
+subsystem
+uevent
+/sys/class/hwmon/hwmon6/fan1_input = 0
+/sys/class/hwmon/hwmon6/fan2_input = 0
+/sys/class/hwmon/hwmon6/pwm1_enable = 2
+
+[/sys/class/hwmon/hwmon7] name=coretemp
+
+[/sys/class/hwmon/hwmon8] name=iwlwifi_1
+
+$ sensors
+iwlwifi_1-virtual-0
+Adapter: Virtual device
+temp1:        +47.0°C  
+
+hp-isa-0000
+Adapter: ISA adapter
+fan1:           0 RPM
+fan2:           0 RPM
+pwm1:             N/A
+
+ucsi_source_psy_USBC000:001-isa-0000
+Adapter: ISA adapter
+in0:           0.00 V  (min =  +0.00 V, max =  +0.00 V)
+curr1:         0.00 A  (max =  +0.00 A)
+
+BAT1-acpi-0
+Adapter: ACPI interface
+in0:          12.76 V  
+power1:           N/A  
+
+coretemp-isa-0000
+Adapter: ISA adapter
+Package id 0:  +65.0°C  (high = +100.0°C, crit = +100.0°C)
+Core 0:        +56.0°C  (high = +100.0°C, crit = +100.0°C)
+Core 1:        +56.0°C  (high = +100.0°C, crit = +100.0°C)
+Core 2:        +56.0°C  (high = +100.0°C, crit = +100.0°C)
+Core 3:        +65.0°C  (high = +100.0°C, crit = +100.0°C)
+Core 4:        +59.0°C  (high = +100.0°C, crit = +100.0°C)
+Core 5:        +55.0°C  (high = +100.0°C, crit = +100.0°C)
+
+pch_cometlake-virtual-0
+Adapter: Virtual device
+temp1:        +49.0°C  
+
+nvme-pci-3b00
+Adapter: PCI adapter
+Composite:    +48.9°C  (low  = -273.1°C, high = +80.8°C)
+                       (crit = +81.8°C)
+Sensor 1:     +48.9°C  (low  = -273.1°C, high = +65261.8°C)
+Sensor 2:     +46.9°C  (low  = -273.1°C, high = +65261.8°C)
+
+acpitz-acpi-0
+Adapter: ACPI interface
+temp1:        +27.8°C  
+temp2:        +10.0°C  
+
+
+==================== 6. gpu_mux_mode (finding §3 predicts: read fails, EINVAL)
+no gpu_mux_mode attribute (kernel older than 7.3?)
+
+$ lspci -nnk
+00:00.0 Host bridge [0600]: Intel Corporation 10th Gen Core Processor Host Bridge/DRAM Registers [8086:9b54] (rev 02)
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: skl_uncore
+00:01.0 PCI bridge [0604]: Intel Corporation 6th-10th Gen Core Processor PCIe Controller (x16) [8086:1901] (rev 02)
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: pcieport
+	Kernel modules: shpchp
+00:08.0 System peripheral [0880]: Intel Corporation Xeon E3-1200 v5/v6 / E3-1500 v5 / 6th/7th/8th Gen Core Processor Gaussian Mixture Model [8086:1911]
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+00:12.0 Signal processing controller [1180]: Intel Corporation Comet Lake PCH Thermal Controller [8086:06f9]
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: intel_pch_thermal
+	Kernel modules: intel_pch_thermal
+00:14.0 USB controller [0c03]: Intel Corporation Comet Lake USB 3.1 xHCI Host Controller [8086:06ed]
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: xhci_hcd
+	Kernel modules: xhci_pci
+00:14.2 RAM memory [0500]: Intel Corporation Comet Lake PCH Shared SRAM [8086:06ef]
+	Subsystem: Intel Corporation Device [8086:7270]
+00:14.3 Network controller [0280]: Intel Corporation Comet Lake PCH CNVi WiFi [8086:06f0]
+	Subsystem: Intel Corporation Dual Band Wi-Fi 6(802.11ax) AX201 160MHz 2x2 [Harrison Peak] [8086:0074]
+	Kernel driver in use: iwlwifi
+	Kernel modules: iwlwifi
+00:14.5 SD Host controller [0805]: Intel Corporation Device [8086:06f5]
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: sdhci-pci
+	Kernel modules: sdhci_pci
+00:15.0 Serial bus controller [0c80]: Intel Corporation Comet Lake PCH Serial IO I2C Controller #0 [8086:06e8]
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: intel-lpss
+	Kernel modules: intel_lpss_pci
+00:16.0 Communication controller [0780]: Intel Corporation Comet Lake HECI Controller [8086:06e0]
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: mei_me
+	Kernel modules: mei_me
+00:17.0 RAID bus controller [0104]: Intel Corporation 82801 Mobile SATA Controller [RAID mode] [8086:282a]
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: ahci
+	Kernel modules: ahci
+00:1b.0 PCI bridge [0604]: Intel Corporation Comet Lake PCI Express Root Port #17 [8086:06c0] (rev f0)
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: pcieport
+	Kernel modules: shpchp
+00:1d.0 PCI bridge [0604]: Intel Corporation Comet Lake PCI Express Root Port #9 [8086:06b0] (rev f0)
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: pcieport
+	Kernel modules: shpchp
+00:1d.5 PCI bridge [0604]: Intel Corporation Device [8086:06b5] (rev f0)
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: pcieport
+	Kernel modules: shpchp
+00:1d.6 PCI bridge [0604]: Intel Corporation Device [8086:06b6] (rev f0)
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: pcieport
+	Kernel modules: shpchp
+00:1f.0 ISA bridge [0601]: Intel Corporation HM470 Chipset LPC/eSPI Controller [8086:068d]
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+00:1f.3 Multimedia audio controller [0401]: Intel Corporation Comet Lake PCH cAVS [8086:06c8]
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: sof-audio-pci-intel-cnl
+	Kernel modules: snd_soc_avs, snd_sof_pci_intel_cnl, snd_hda_intel
+00:1f.4 SMBus [0c05]: Intel Corporation Comet Lake PCH SMBus Controller [8086:06a3]
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: i801_smbus
+	Kernel modules: i2c_i801
+00:1f.5 Serial bus controller [0c80]: Intel Corporation Comet Lake PCH SPI Controller [8086:06a4]
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: intel-spi
+	Kernel modules: spi_intel_pci
+01:00.0 VGA compatible controller [0300]: NVIDIA Corporation TU106M [GeForce RTX 2060 Mobile] [10de:1f15] (rev a1)
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: nouveau
+	Kernel modules: nvidiafb, nouveau
+01:00.1 Audio device [0403]: NVIDIA Corporation TU106 High Definition Audio Controller [10de:10f9] (rev a1)
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: snd_hda_intel
+	Kernel modules: snd_hda_intel
+01:00.2 USB controller [0c03]: NVIDIA Corporation TU106 USB 3.1 Host Controller [10de:1ada] (rev a1)
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: xhci_hcd
+	Kernel modules: xhci_pci
+01:00.3 Serial bus controller [0c80]: NVIDIA Corporation TU106 USB Type-C UCSI Controller [10de:1adb] (rev a1)
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: nvidia-gpu
+	Kernel modules: i2c_nvidia_gpu
+02:00.0 PCI bridge [0604]: Intel Corporation JHL7540 Thunderbolt 3 Bridge [Titan Ridge 2C 2018] [8086:15e7] (rev 06)
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: pcieport
+	Kernel modules: shpchp
+03:00.0 PCI bridge [0604]: Intel Corporation JHL7540 Thunderbolt 3 Bridge [Titan Ridge 2C 2018] [8086:15e7] (rev 06)
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: pcieport
+	Kernel modules: shpchp
+03:01.0 PCI bridge [0604]: Intel Corporation JHL7540 Thunderbolt 3 Bridge [Titan Ridge 2C 2018] [8086:15e7] (rev 06)
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: pcieport
+	Kernel modules: shpchp
+03:02.0 PCI bridge [0604]: Intel Corporation JHL7540 Thunderbolt 3 Bridge [Titan Ridge 2C 2018] [8086:15e7] (rev 06)
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: pcieport
+	Kernel modules: shpchp
+04:00.0 System peripheral [0880]: Intel Corporation JHL7540 Thunderbolt 3 NHI [Titan Ridge 2C 2018] [8086:15e8] (rev 06)
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: thunderbolt
+	Kernel modules: thunderbolt
+3a:00.0 USB controller [0c03]: Intel Corporation JHL7540 Thunderbolt 3 USB Controller [Titan Ridge 2C 2018] [8086:15e9] (rev 06)
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: xhci_hcd
+	Kernel modules: xhci_pci
+3b:00.0 Non-Volatile memory controller [0108]: Samsung Electronics Co Ltd NVMe SSD Controller SM981/PM981/PM983 [144d:a808]
+	Subsystem: Samsung Electronics Co Ltd SSD 970 EVO/PRO [144d:a801]
+	Kernel driver in use: nvme
+	Kernel modules: nvme
+3c:00.0 Ethernet controller [0200]: Realtek Semiconductor Co., Ltd. RTL8111/8168/8211/8411 PCI Express Gigabit Ethernet Controller [10ec:8168] (rev 16)
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: r8169
+	Kernel modules: r8169
+3d:00.0 SD Host controller [0805]: Genesys Logic, Inc GL9750 SD Host Controller [17a0:9750] (rev 01)
+	DeviceName: Realtek PCIE CardReader
+	Subsystem: Hewlett-Packard Company Device [103c:8746]
+	Kernel driver in use: sdhci-pci
+	Kernel modules: sdhci_pci
+
+$ nvidia-smi -L
+live-usb-check.sh: line 24: nvidia-smi: command not found
+
+==================== 7. EC registers, read-only (finding §2: profile at 0x29 bits 0-1; 0x95 inside battery name)
+-- EC dump: boot state
+00000000: 00 00 00 00 00 01 50 00 ff 00 00 00 ff 00 19 01  ......P.........
+00000010: 01 19 22 1b ff 00 ff ff ff ff ff ff 01 00 01 21  .."............!
+00000020: 00 00 ff 00 ff 00 00 00 ff 00 20 00 00 36 48 55  .......... ..6HU
+00000030: 46 56 30 35 54 5a 45 37 30 57 35 00 01 00 00 ff  FV05TZE70W5.....
+00000040: ff ff ff 01 00 ff ff ff ff 4c 49 4f 4e 00 00 00  .........LION...
+00000050: 00 01 ff ff 31 00 00 00 01 00 2d 41 00 00 00 00  ....1.....-A....
+00000060: 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+00000070: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+00000080: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+00000090: 33 33 33 2d 32 43 2d 31 31 50 47 30 36 30 36 39  333-2C-11PG06069
+000000a0: 00 00 00 c6 c1 00 00 3f 27 00 00 08 64 2a 00 78  .......?'...d*.x
+000000b0: 35 35 36 3f 33 00 30 2b 00 00 00 00 24 5a 11 11  556?3.0+....$Z..
+000000c0: 70 00 b9 12 61 04 da 31 1e 2d f4 1a b9 12 64 23  p...a..1.-....d#
+000000d0: 00 00 00 00 00 00 b9 12 df 01 5b 50 00 00 e0 00  ..........[P....
+000000e0: 00 00 00 9e 10 9c 10 9b 10 00 00 83 43 72 00 7f  ............Cr..
+000000f0: 00 04 04 00 00 00 00 00 50 00 00 28 51 72 04 00  ........P..(Qr..
+EC[0x29] = 0x00   EC[0x95] = 0x43
+/sys/class/power_supply/BAT1/model_name = PABAS0241231
+/sys/class/power_supply/BAT1/manufacturer = COMPAL 
+
+==================== 8. Reload hp-wmi with AML debug output (identifies the WMAA abort)
+Before: platform_profile=cat: /sys/firmware/acpi/platform_profile: No such file or directory
+aml_debug_output enabled
+-- dmesg during hp-wmi probe:
+[  574.197797] ACPI Debug:  "HP WMI Command 0x04 (BIOS Read)"
+[  574.198187] ACPI Debug:  "HP WMI Command 0x04 (BIOS Read)"
+[  574.198600] ACPI Debug:  "HP WMI Command 0x0D (BIOS Read)"
+[  574.201233] input: HP WMI hotkeys as /devices/virtual/input/input22
+[  574.201554] ACPI Debug:  "HP WMI Command 0x0D (BIOS Read)"
+[  574.204698] ACPI Debug:  "HP WMI Command type 0x11 for WMI 20008h command"
+[  574.205234] ACPI Debug:  "HP WMI Command type 0x11 for WMI 20008h command"
+[  574.205850] ACPI Debug:  "HP WMI Command type 0x27 for WMI 20008h command"
+After reload: platform_profile=cat: /sys/firmware/acpi/platform_profile: No such file or directory
+-- EC dump: after hp-wmi reload
+00000000: 00 00 00 00 00 01 50 00 ff 00 00 00 ff 00 19 01  ......P.........
+00000010: 01 19 22 1b ff 00 ff ff ff ff ff ff 01 00 01 21  .."............!
+00000020: 00 00 ff 00 ff 00 00 00 ff 00 20 00 00 36 48 55  .......... ..6HU
+00000030: 46 56 30 35 54 5a 45 37 30 57 35 00 01 00 00 ff  FV05TZE70W5.....
+00000040: ff ff ff 01 00 ff ff ff ff 4c 49 4f 4e 00 00 00  .........LION...
+00000050: 00 01 ff ff 31 00 00 00 01 00 2d 41 00 00 00 00  ....1.....-A....
+00000060: 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+00000070: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+00000080: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+00000090: 33 33 33 2d 32 43 2d 31 31 50 47 30 36 30 36 39  333-2C-11PG06069
+000000a0: 00 00 00 c6 c1 00 00 3f 27 00 00 08 64 2a 00 78  .......?'...d*.x
+000000b0: 44 44 36 3f 33 00 30 2b 00 00 00 00 24 5a 11 11  DD6?3.0+....$Z..
+000000c0: 70 00 b9 12 61 04 d6 31 1e 2d f4 1a b9 12 64 23  p...a..1.-....d#
+000000d0: 00 00 00 00 00 00 b9 12 df 01 5b 40 00 00 e0 00  ..........[@....
+000000e0: 00 00 00 9e 10 9c 10 9b 10 00 00 83 43 72 00 7f  ............Cr..
+000000f0: 00 5a 00 00 00 00 00 00 50 00 00 28 51 72 04 00  .Z......P..(Qr..
+EC[0x29] = 0x00   EC[0x95] = 0x43
+
+==================== 9. Profile round trip: cool -> performance -> balanced (HP-observed payloads only)
+/sys/class/power_supply/ACAD/online = 1
+platform_profile not writable or no 'cool' choice - skipped
+
+==================== 10. BIOS settings via hp-bioscfg (read-only)
+                                             = 
+Sure_Start                                    = 
+
+==================== 11. Audio
+
+$ aplay -l
+**** List of PLAYBACK Hardware Devices ****
+card 0: NVidia [HDA NVidia], device 3: HDMI 0 [HDMI 0]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 0: NVidia [HDA NVidia], device 7: HDMI 1 [HDMI 1]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 0: NVidia [HDA NVidia], device 8: HDMI 2 [HDMI 2]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 0: NVidia [HDA NVidia], device 9: HDMI 3 [HDMI 3]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 1: sofhdadsp [sof-hda-dsp], device 0: HDA Analog (*) []
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 1: sofhdadsp [sof-hda-dsp], device 31: HDA Analog Deep Buffer (*) []
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+
+$ arecord -l
+**** List of CAPTURE Hardware Devices ****
+card 1: sofhdadsp [sof-hda-dsp], device 0: HDA Analog (*) []
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 1: sofhdadsp [sof-hda-dsp], device 6: DMIC (*) []
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 1: sofhdadsp [sof-hda-dsp], device 7: DMIC16kHz (*) []
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+/proc/asound/card0/codec#0:Codec: Nvidia GPU 93 HDMI/DP
+/proc/asound/card0/codec#0:Subsystem Id: 0x103c8746
+/proc/asound/card1/codec#0:Codec: Realtek ALC285
+/proc/asound/card1/codec#0:Subsystem Id: 0x103c8746
+
+==================== 12. Sleep and battery
+/sys/power/mem_sleep = s2idle [deep]
+/sys/power/state = freeze mem
+alarm
+capacity
+capacity_level
+cycle_count
+device
+energy_full
+energy_full_design
+energy_now
+extensions
+hwmon2
+manufacturer
+model_name
+power
+power_now
+present
+serial_number
+status
+subsystem
+technology
+type
+uevent
+voltage_min_design
+voltage_now
+
+==================== 13. Keys (optional, 20 s): press the OMEN key, then the keyboard-backlight key
+listening on /dev/input/event10 (HP WMI hotkeys) ...
+Input driver version is 1.0.1
+Input device ID: bus 0x19 vendor 0x0 product 0x0 version 0x0
+Input device name: "HP WMI hotkeys"
+Supported events:
+  Event type 0 (EV_SYN)
+  Event type 1 (EV_KEY)
+    Event code 138 (KEY_HELP)
+    Event code 141 (KEY_SETUP)
+    Event code 148 (KEY_PROG1)
+    Event code 149 (KEY_PROG2)
+    Event code 153 (KEY_DIRECTION)
+    Event code 224 (KEY_BRIGHTNESSDOWN)
+    Event code 225 (KEY_BRIGHTNESSUP)
+    Event code 226 (KEY_MEDIA)
+    Event code 240 (KEY_UNKNOWN)
+    Event code 248 (KEY_MICMUTE)
+    Event code 358 (KEY_INFO)
+    Event code 465 (KEY_FN_ESC)
+    Event code 531 (KEY_TOUCHPAD_ON)
+    Event code 532 (KEY_TOUCHPAD_OFF)
+  Event type 4 (EV_MSC)
+    Event code 4 (MSC_SCAN)
+  Event type 5 (EV_SW)
+    Event code 5 (SW_DOCK) state 0
+Properties:
+Testing ... (interrupt to exit)
+Event: time 1790458744.411336, type 4 (EV_MSC), code 4 (MSC_SCAN), value 21a5
+Event: time 1790458744.411336, type 1 (EV_KEY), code 149 (KEY_PROG2), value 1
+Event: time 1790458744.411336, -------------- SYN_REPORT ------------
+Event: time 1790458744.411346, type 1 (EV_KEY), code 149 (KEY_PROG2), value 0
+Event: time 1790458744.411346, -------------- SYN_REPORT ------------
+
+==================== done
+Saved to: /run/media/kubuntu/Ventoy/omen-8746-check-20260926-213848.txt

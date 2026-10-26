@@ -1,0 +1,283 @@
+--- a/drivers/platform/x86/hp/hp-wmi.c
++++ b/drivers/platform/x86/hp/hp-wmi.c
+@@ -671,8 +671,58 @@
+ 	return fan_data[0]; /* Others bytes aren't providing fan count */
+ }
+ 
++/*
++ * Board 8746 (OMEN by HP Laptop 15-dh1xxx) quirk - omen-sense local patch.
++ *
++ * The OMEN thermal-profile byte is not at EC 0x95 on this board: the
++ * firmware's GM1A handler keeps it in OCCM, EC offset 0x29 bits 0-1, with the
++ * V0 values the driver already uses. EC 0x95 lies inside the battery string,
++ * which made profile setup fail and left the board with no platform_profile.
++ *
++ * Fan speed query 0x11 returns a zero buffer on this board. Query 0x2D reads
++ * RPM/100 per fan from the EC; it takes no input the firmware uses.
++ */
++#define HP_OMEN_8746_EC_THERMAL_PROFILE_OFFSET	0x29
++#define HP_OMEN_8746_EC_THERMAL_PROFILE_MASK	0x03
++#define HP_OMEN_8746_FAN_LEVEL_GET_QUERY	0x2D
++
++static bool hp_wmi_board_is_8746(void)
++{
++	const char *board_name = dmi_get_system_info(DMI_BOARD_NAME);
++
++	return board_name && !strcmp(board_name, "8746");
++}
++
++static int hp_wmi_get_fan_speed_8746(int fan)
++{
++	u8 fan_data[128] = {};
++	int ret;
++
++	if (fan < 0 || fan > 1)
++		return -EINVAL;
++
++	ret = hp_wmi_perform_query(HP_OMEN_8746_FAN_LEVEL_GET_QUERY, HPWMI_GM,
++				   &fan_data, sizeof(u8), sizeof(fan_data));
++	if (ret != 0)
++		return -EINVAL;
++
++	return fan_data[fan] * 100;
++}
++
++static int hp_wmi_get_fan_speed_legacy(int fan);
++
+ static int hp_wmi_get_fan_speed(int fan)
+ {
++	if (hp_wmi_board_is_8746()) {
++		pr_info_once("board 8746 quirk: fan RPM via query 0x2D, profile at EC 0x29\n");
++		return hp_wmi_get_fan_speed_8746(fan);
++	}
++
++	return hp_wmi_get_fan_speed_legacy(fan);
++}
++
++static int hp_wmi_get_fan_speed_legacy(int fan)
++{
+ 	u8 fsh, fsl;
+ 	char fan_data[4] = { fan, 0, 0, 0 };
+ 
+@@ -813,7 +863,17 @@
+ {
+ 	u8 data;
+ 
+-	int ret = ec_read(HP_OMEN_EC_THERMAL_PROFILE_OFFSET, &data);
++	int ret;
++
++	if (hp_wmi_board_is_8746()) {
++		ret = ec_read(HP_OMEN_8746_EC_THERMAL_PROFILE_OFFSET, &data);
++		if (ret)
++			return ret;
++
++		return data & HP_OMEN_8746_EC_THERMAL_PROFILE_MASK;
++	}
++
++	ret = ec_read(HP_OMEN_EC_THERMAL_PROFILE_OFFSET, &data);
+ 
+ 	if (ret)
+ 		return ret;
+@@ -1202,7 +1262,12 @@
+ 			pr_info("Unknown key code - 0x%x\n", key_code);
+ 		break;
+ 	case HPWMI_FN_P_HOTKEY:
+-		platform_profile_cycle();
++		/*
++		 * On 8746 event 0x1B is GM1A's echo of every mode write, not a
++		 * key. Cycling here writes the mode again and loops forever.
++		 */
++		if (!hp_wmi_board_is_8746())
++			platform_profile_cycle();
+ 		break;
+ 	case HPWMI_OMEN_KEY:
+ 		if (event_data) /* Only should be true for HP Omen */
+@@ -1575,6 +1640,112 @@
+ 	return data == HPWMI_BACKLIGHT_SET_ON_QUERY;
+ }
+ 
++/*
++ * Board 8746: keyboard colour writes - omen-sense local patch.
++ *
++ * The firmware's colour-table read (LM02) fills byte 0x1B, zone 0's blue, from
++ * Z02B instead of Z01B. A read-modify-write of any other zone therefore copies
++ * zone 1's blue into zone 0, the right-hand zone. Write the whole table from
++ * the driver's own record of every zone instead, with no read first: the
++ * payload shape OMEN Gaming Hub sends on this machine, byte 0 = 3, zeros, then
++ * twelve colour bytes from offset 25.
++ *
++ * The backlight key is handled by the firmware alone here; no event reaches
++ * the driver. So switch the backlight on only when a zone goes from dark to
++ * lit, not on every colour write, or the key cannot keep the keyboard off.
++ *
++ * And when every zone is at brightness 0, switch the backlight off for real
++ * (type 0x05, 0x64 - what OMEN Gaming Hub sends here to turn it off) rather
++ * than leaving it lit with a black table. LM05 only sets KBLS; it raises no
++ * event.
++ */
++#define HP_KBD_8746_ZONE0_BLUE_EC	0x0A	/* Z01B */
++
++static DEFINE_MUTEX(hp_kbd_8746_lock);
++static enum led_brightness hp_kbd_8746_shown[4];
++
++static int hp_kbd_set_brightness(struct led_classdev *led_cdev,
++				 enum led_brightness brightness);
++
++static int hp_kbd_8746_write_table(void)
++{
++	u8 color_table[128] = { 0x03 };
++	struct led_classdev_mc *device;
++	int ret;
++
++	for (int zone = 0; zone < ARRAY_SIZE(hp_multicolor_leds.devices); zone++) {
++		device = &hp_multicolor_leds.devices[zone];
++		for (int i = 0; i < HP_KBD_RGB_COLORS; i++)
++			color_table[HP_COLOR_TABLE_PADDING +
++				    zone * HP_KBD_RGB_COLORS + i] =
++				device->subled_info[i].brightness;
++	}
++
++	ret = hp_wmi_perform_query(HPWMI_BACKLIGHT_COLOR_SET_QUERY, HPWMI_BACKLIGHT,
++				   color_table, sizeof(color_table),
++				   sizeof(color_table));
++	if (ret < 0)
++		return ret;
++	if (ret)
++		return -EINVAL;
++
++	return 0;
++}
++
++static int hp_kbd_set_brightness_8746(struct led_classdev *led_cdev,
++				      enum led_brightness brightness)
++{
++	struct hp_kbd_led_priv *priv = hp_led_get_priv(led_cdev);
++	int ret = 0;
++
++	/* Until every zone is registered there is no full record to write. */
++	for (int i = 0; i < ARRAY_SIZE(hp_multicolor_leds.devices); i++)
++		if (!hp_multicolor_leds.devices[i].subled_info)
++			return hp_kbd_set_brightness(led_cdev, brightness);
++
++	mutex_lock(&hp_kbd_8746_lock);
++
++	if (brightness && !hp_kbd_8746_shown[priv->zone] &&
++	    !hp_kbd_backlight_is_on()) {
++		u8 data = HPWMI_BACKLIGHT_SET_ON_QUERY;
++
++		ret = hp_wmi_perform_query(HPWMI_BACKLIGHT_BRIGHTNESS_SET_QUERY,
++					   HPWMI_BACKLIGHT, &data,
++					   sizeof(data), sizeof(data));
++		if (ret)
++			goto out;
++	}
++
++	/*
++	 * led_cdev->brightness is left to the LED core, which has already set
++	 * it; suspend calls this with 0 without changing it, so resume can put
++	 * the saved level back.
++	 */
++	led_mc_calc_color_components(lcdev_to_mccdev(led_cdev), brightness);
++
++	ret = hp_kbd_8746_write_table();
++	if (ret)
++		goto out;
++	hp_kbd_8746_shown[priv->zone] = brightness;
++
++	if (!brightness) {
++		bool all_dark = true;
++
++		for (int i = 0; i < ARRAY_SIZE(hp_kbd_8746_shown); i++)
++			all_dark &= !hp_kbd_8746_shown[i];
++		if (all_dark) {
++			u8 data = HPWMI_BACKLIGHT_SET_OFF_QUERY;
++
++			ret = hp_wmi_perform_query(HPWMI_BACKLIGHT_BRIGHTNESS_SET_QUERY,
++						   HPWMI_BACKLIGHT, &data,
++						   sizeof(data), sizeof(data));
++		}
++	}
++out:
++	mutex_unlock(&hp_kbd_8746_lock);
++	return ret;
++}
++
+ static int hp_kbd_set_brightness(struct led_classdev *led_cdev,
+ 					enum led_brightness brightness)
+ {
+@@ -1670,6 +1841,14 @@
+ 	if (ret)
+ 		return ret;
+ 
++	if (hp_wmi_board_is_8746()) {
++		u8 blue;
++
++		/* LM02 reports zone 0's blue from the wrong field. */
++		if (!ec_read(HP_KBD_8746_ZONE0_BLUE_EC, &blue))
++			color_table[HP_COLOR_TABLE_PADDING + 2] = blue;
++	}
++
+ 	for (int zone = 0; zone < num_zones; zone++) {
+ 		struct led_classdev_mc *multicolor_led_dev;
+ 		struct led_classdev *led_cdev;
+@@ -1699,7 +1878,8 @@
+ 		led_cdev->brightness = hp_kbd_backlight_is_on() ?
+ 				       LED_FULL : LED_OFF;
+ 		led_cdev->max_brightness = LED_FULL;
+-		led_cdev->brightness_set_blocking = hp_kbd_set_brightness;
++		led_cdev->brightness_set_blocking = hp_wmi_board_is_8746() ?
++			hp_kbd_set_brightness_8746 : hp_kbd_set_brightness;
+ 		led_cdev->flags = LED_CORE_SUSPENDRESUME |
+ 				  LED_RETAIN_AT_SHUTDOWN |
+ 				  LED_BRIGHT_HW_CHANGED;
+@@ -1718,7 +1898,11 @@
+ 
+ 			mc_subled_info[i].channel = zone * HP_KBD_RGB_COLORS + i;
+ 			mc_subled_info[i].intensity = color_table[off];
+-			mc_subled_info[i].brightness = LED_FULL;
++			if (hp_wmi_board_is_8746())
++				mc_subled_info[i].brightness = led_cdev->brightness ?
++								 color_table[off] : 0;
++			else
++				mc_subled_info[i].brightness = LED_FULL;
+ 		}
+ 
+ 		multicolor_led_dev->subled_info = mc_subled_info;
+@@ -1733,6 +1917,7 @@
+ 		/* Initialize private data */
+ 		priv->zone = zone;
+ 		priv->last_brightness = LED_FULL;
++		hp_kbd_8746_shown[zone] = led_cdev->brightness;
+ 	}
+ 	return 0;
+ }
+@@ -1778,7 +1963,8 @@
+ 		break;
+ 	case HP_OMEN_V0_THERMAL_PROFILE_COOL:
+ 	case HP_OMEN_V1_THERMAL_PROFILE_COOL:
+-		*profile = PLATFORM_PROFILE_COOL;
++		*profile = hp_wmi_board_is_8746() ? PLATFORM_PROFILE_LOW_POWER :
++						   PLATFORM_PROFILE_COOL;
+ 		break;
+ 	default:
+ 		return -EINVAL;
+@@ -1853,6 +2039,7 @@
+ 		else
+ 			tp = HP_OMEN_V1_THERMAL_PROFILE_DEFAULT;
+ 		break;
++	case PLATFORM_PROFILE_LOW_POWER:	/* only offered on board 8746 */
+ 	case PLATFORM_PROFILE_COOL:
+ 		if (tp_version == 0)
+ 			tp = HP_OMEN_V0_THERMAL_PROFILE_COOL;
+@@ -2263,7 +2450,10 @@
+ 
+ static int hp_wmi_platform_profile_probe(void *drvdata, unsigned long *choices)
+ {
+-	if (is_omen_thermal_profile()) {
++	if (hp_wmi_board_is_8746()) {
++		/* the cool mode, named so power-profiles-daemon maps it */
++		set_bit(PLATFORM_PROFILE_LOW_POWER, choices);
++	} else if (is_omen_thermal_profile()) {
+ 		set_bit(PLATFORM_PROFILE_COOL, choices);
+ 	} else if (is_victus_thermal_profile()) {
+ 		set_bit(PLATFORM_PROFILE_QUIET, choices);

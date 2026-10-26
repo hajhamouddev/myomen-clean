@@ -1,0 +1,24 @@
+[Unit]
+Description=Restore MyOmen keyboard colours and startup profile
+Documentation=file:///usr/share/doc/omen-sense/README.md
+
+# The firmware resets the four keyboard zones to red / green / blue / white at
+# every boot. This puts back the startup profile if one is set, and otherwise
+# the last colours used.
+After=graphical-session.target
+PartOf=graphical-session.target
+
+# Audio presets are a PipeWire filter. Wants, not Requires: a profile with no
+# audio in it should still apply with no sound server at all.
+Wants=pipewire.service
+After=pipewire.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=no
+# hp-wmi may still be registering the keyboard zones when the session starts.
+ExecStartPre=/bin/sh -c 'for i in $(seq 20); do [ -e /sys/class/leds/hp::kbd_zoned_backlight-wasd ] && exit 0; sleep 0.25; done; exit 0'
+ExecStart=/usr/bin/omen-sense apply
+
+[Install]
+WantedBy=graphical-session.target

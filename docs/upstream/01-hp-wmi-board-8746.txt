@@ -1,0 +1,61 @@
+DRAFT - not sent. Before sending:
+  - rebase onto pdx86 for-next (git://git.kernel.org/pub/scm/linux/kernel/git/pdx86/platform-drivers-x86.git);
+    the diff next to this file is against Ubuntu 7.0.14 + v11, not for-next,
+    and it also carries the keyboard fixes - those belong to the v11 thread
+    (02-v11-kbd-rgb-test-report.txt), not to this series
+  - split into the patches below, send with git format-patch / git send-email
+  - run scripts/checkpatch.pl and scripts/get_maintainer.pl
+  - drop the "omen-sense local patch" comments; replace the DMI strcmp with
+    proper board tables (e.g. an 8746 entry next to omen_thermal_profile_force_v0_boards)
+  - fill in your name/e-mail for Signed-off-by
+
+To: platform-driver-x86@vger.kernel.org
+Cc: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>,
+    Hans de Goede <johannes.goede@oss.qualcomm.com>
+
+Subject: [PATCH 0/4] platform/x86: hp-wmi: fix OMEN 15-dh1xxx (board 8746)
+
+On the OMEN by HP Laptop 15-dh1xxx (board 8746, BIOS F.44) hp-wmi registers
+no platform_profile and reports 0 RPM on both fans. Fixing the profile read
+then exposes an event loop. All four patches are limited to board 8746 and
+were tested on 7.0.14 (Ubuntu 7.0.0-34), on AC, with the ACPI tables and OMEN
+Gaming Hub logs from the same machine as reference.
+
+1/4 Read the thermal profile from EC 0x29 on board 8746
+
+    8746 has no HPCM. GM1A stores the mode in OCCM, bits 0-1 of EC offset
+    0x29, with the V0 values 0/1/2. EC 0x95 is inside the battery model-name
+    string (0x43 'C' here), so thermal_profile_setup() returns -EINVAL and
+    no platform_profile is registered (hp_wmi_bios_setup ignores the error).
+    Tested: EC[0x29] reads 2/1/0 after setting cool/performance/balanced.
+
+2/4 Ignore WMI event 0x1B on board 8746   ** must go in with 1/4 **
+
+    GM1A ends with GWEV(0x1B, 5|6) after every mode write. hp-wmi treats
+    0x1B as HPWMI_FN_P_HOTKEY and calls platform_profile_cycle(), which
+    writes the next mode and raises 0x1B again. With 1/4 alone, the result is
+    an endless loop: ftrace showed ~700 platform_profile_omen_set_ec()/s from
+    hp_wmi_notify -> platform_profile_cycle. No Fn+P key path to 0x1B was
+    found in the ASL.
+
+3/4 Read fan speed with query 0x2D on board 8746
+
+    GM11 (query 0x11) returns a hard-coded zero buffer on 8746. GM2D (0x2D)
+    returns RPM/100 per fan from the EC and ignores its input. Tested:
+    fan1/fan2 = EC[0x11] x 100 (e.g. 3100/3300 with EC[0x11] = 0x1f).
+
+4/4 Offer the cool mode as low-power on board 8746
+
+    power-profiles-daemon 0.30 has no mapping for "cool": Power Saver leaves
+    the firmware mode alone, and while the laptop is in cool, ppd reports
+    balanced and skips a later "set balanced". The payload is unchanged
+    ({0xFF, 0x02}). Tested: ppd power-saver/balanced/performance ->
+    low-power/balanced/performance, EC[0x29] = 2/0/1.
+
+    (Open question for review: whether exposing cool as low-power is
+    acceptable, or ppd should learn "cool" instead.)
+
+Profile writes stay the existing V0 payloads {0xFF, 0|1|2}. All three were
+observed from OMEN Gaming Hub on this machine (SetFanModeAsync log lines).
+
+Signed-off-by: <Your Name> <you@example.com>

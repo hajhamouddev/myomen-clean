@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# MyOmen entrypoint executable wrapper
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export PYTHONPATH="${HERE}/gui:${PYTHONPATH:-}"
+exec /usr/bin/python3 -m omensense.app "$@"

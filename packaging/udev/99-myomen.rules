@@ -1,0 +1,20 @@
+# ==============================================================================
+# MyOmen - Unprivileged Non-Root Hardware Control Rules
+# Target: HP OMEN Laptop 15-dh1xxx / Board 8746
+# ==============================================================================
+
+# 1. 4-Zone RGB Keyboard Backlight (brightness, multi_intensity)
+ACTION=="add", SUBSYSTEM=="leds", KERNEL=="hp::kbd_zoned_backlight-*", \
+  RUN+="/bin/sh -c 'chgrp plugdev /sys%p/brightness /sys%p/multi_intensity 2>/dev/null || chgrp users /sys%p/brightness /sys%p/multi_intensity 2>/dev/null; chmod 0664 /sys%p/brightness /sys%p/multi_intensity 2>/dev/null || chmod a+w /sys%p/brightness /sys%p/multi_intensity 2>/dev/null'"
+
+# 2. HP-WMI Hardware Monitor & Manual/Max Fan Control (pwm1_enable)
+ACTION=="add", SUBSYSTEM=="hwmon", ATTR{name}=="hp", \
+  RUN+="/bin/sh -c 'chgrp plugdev /sys%p/pwm1_enable 2>/dev/null || chgrp users /sys%p/pwm1_enable 2>/dev/null; chmod 0664 /sys%p/pwm1_enable 2>/dev/null || chmod a+w /sys%p/pwm1_enable 2>/dev/null'"
+
+# 3. ACPI Platform Profile Control (Quiet, Balanced, Performance)
+ACTION=="add", SUBSYSTEM=="platform-profile", \
+  RUN+="/bin/sh -c 'chgrp plugdev /sys%p/profile 2>/dev/null || chgrp users /sys%p/profile 2>/dev/null; chmod 0664 /sys%p/profile 2>/dev/null || chmod a+w /sys%p/profile 2>/dev/null'"
+
+# 4. Intel RAPL CPU Package Energy & Power Limits (PL1, PL2 & sub-constraints)
+ACTION=="add|change", SUBSYSTEM=="powercap", KERNEL=="intel-rapl*", \
+  RUN+="/bin/sh -c 'chmod a+r /sys%p/energy_uj /sys%p/max_energy_range_uj 2>/dev/null || true; for f in /sys%p/constraint_*_power_limit_uw /sys%p/constraint_*_time_window_us; do [ -e \"$$f\" ] && (chgrp plugdev \"$$f\" 2>/dev/null || chgrp users \"$$f\" 2>/dev/null || true) && (chmod 0664 \"$$f\" 2>/dev/null || chmod a+w \"$$f\" 2>/dev/null || true); done'"

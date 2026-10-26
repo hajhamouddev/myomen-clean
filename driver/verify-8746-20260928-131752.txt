@@ -1,0 +1,50 @@
+== module
+7.0.0-34-generic
+file:   /lib/modules/7.0.0-34-generic/updates/dkms/hp-wmi.ko.zst
+signer: <local module signing certificate>
+hp_wmi                 45056  0
+[  977.501568] hp_wmi: board 8746 quirk: fan RPM via query 0x2D, profile at EC 0x29
+[  977.560315] hp_wmi: Registered as platform profile handler
+[ 1031.250956] hp_wmi: Unknown event_id - 0 - 0x0
+[ 1072.600066] hp_wmi: Unknown event_id - 0 - 0x0
+[ 1094.107341] hp_wmi: Unknown event_id - 0 - 0x0
+[ 1102.611576] hp_wmi: Unknown event_id - 0 - 0x0
+[ 1231.651953] hp_wmi: Unknown event_id - 0 - 0x0
+[ 1283.160426] hp_wmi: Unknown event_id - 0 - 0x0
+[ 1475.476690] hp_wmi: board 8746 quirk: fan RPM via query 0x2D, profile at EC 0x29
+[ 1475.537967] hp_wmi: Registered as platform profile handler
+
+== platform_profile
+choices: cool balanced performance
+current: cool   EC[0x29]=0x02
+on AC:   1
+
+== fans (EC[0x11] is an independent RPM/100 cross-check)
+fan1=4500 fan2=4700  EC[0x11]=0x2d
+fan1=4500 fan2=4700  EC[0x11]=0x2d
+fan1=4500 fan2=4700  EC[0x11]=0x2d
+
+== profile holds still (event 0x1B loop check)
+20 reads over 2s: cool 
+OK: stable
+
+== profile round trip
+cool         -> reads cool         EC[0x29]=0x02  fan1=4500 fan2=4700
+performance  -> reads performance  EC[0x29]=0x01  fan1=4500 fan2=4700
+balanced     -> reads balanced     EC[0x29]=0x00  fan1=4300 fan2=4400
+expect EC[0x29] low bits: cool=2 performance=1 balanced=0
+
+== power-profiles-daemon
+  performance:
+    CpuDriver:	intel_pstate
+    Degraded:   no
+
+* balanced:
+    CpuDriver:	intel_pstate
+    PlatformDriver:	placeholder
+
+  power-saver:
+    CpuDriver:	intel_pstate
+    PlatformDriver:	placeholder
+
+Saved to: <project>/driver/verify-8746-20260928-131752.txt

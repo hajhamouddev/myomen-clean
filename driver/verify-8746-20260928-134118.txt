@@ -1,0 +1,60 @@
+== module
+7.0.0-34-generic
+file:   /lib/modules/7.0.0-34-generic/updates/dkms/hp-wmi.ko.zst
+signer: <local module signing certificate>
+hp_wmi                 49152  0
+[ 1231.651953] hp_wmi: Unknown event_id - 0 - 0x0
+[ 1283.160426] hp_wmi: Unknown event_id - 0 - 0x0
+[ 1475.476690] hp_wmi: board 8746 quirk: fan RPM via query 0x2D, profile at EC 0x29
+[ 1475.537967] hp_wmi: Registered as platform profile handler
+[ 1826.326576] hp_wmi: board 8746 quirk: fan RPM via query 0x2D, profile at EC 0x29
+[ 1826.385021] hp_wmi: Registered as platform profile handler
+[ 2672.862020] hp_wmi: board 8746 quirk: fan RPM via query 0x2D, profile at EC 0x29
+[ 2672.930101] hp_wmi: Registered as platform profile handler
+[ 2879.896698] hp_wmi: board 8746 quirk: fan RPM via query 0x2D, profile at EC 0x29
+[ 2879.960893] hp_wmi: Registered as platform profile handler
+
+== platform_profile
+choices: low-power balanced performance
+current: balanced   EC[0x29]=0x00
+on AC:   1
+
+== fans (EC[0x11] is an independent RPM/100 cross-check)
+fan1=3100 fan2=3300  EC[0x11]=0x1f
+fan1=3100 fan2=3300  EC[0x11]=0x1f
+fan1=3100 fan2=3300  EC[0x11]=0x1f
+
+== profile holds still (event 0x1B loop check)
+20 reads over 2s: balanced 
+OK: stable
+
+== profile round trip
+low-power    -> reads low-power    EC[0x29]=0x02  fan1=3200 fan2=3400
+performance  -> reads performance  EC[0x29]=0x01  fan1=3500 fan2=3600
+balanced     -> reads balanced     EC[0x29]=0x00  fan1=3400 fan2=3400
+expect EC[0x29] low bits: low-power(cool)=2 performance=1 balanced=0
+
+== keyboard RGB (kbd-rgb-v11.patch)
+hp::kbd_zoned_backlight-center           brightness=255 intensity=0 255 0
+hp::kbd_zoned_backlight-left             brightness=255 intensity=0 0 255
+hp::kbd_zoned_backlight-right            brightness=255 intensity=255 0 0
+hp::kbd_zoned_backlight-wasd             brightness=255 intensity=255 255 255
+wasd set red -> reads intensity=255 0 0 brightness=255
+wasd restored -> intensity=255 255 255 brightness=255
+check by eye: WASD went red for 2s, then back
+
+== power-profiles-daemon
+  performance:
+    CpuDriver:	intel_pstate
+    PlatformDriver:	platform_profile
+    Degraded:   no
+
+* balanced:
+    CpuDriver:	intel_pstate
+    PlatformDriver:	platform_profile
+
+  power-saver:
+    CpuDriver:	intel_pstate
+    PlatformDriver:	platform_profile
+
+Saved to: <project>/driver/verify-8746-20260928-134118.txt

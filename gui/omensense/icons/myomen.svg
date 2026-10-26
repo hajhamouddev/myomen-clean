@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Soft outer drop shadow -->
+    <filter id="drop-shadow" x="-25%" y="-20%" width="150%" height="150%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="16" result="blur"/>
+      <feOffset in="blur" dx="0" dy="14" result="offsetBlur"/>
+      <feFlood flood-color="#030712" flood-opacity="0.65" result="color"/>
+      <feComposite in="color" in2="offsetBlur" operator="in" result="shadow"/>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Neon Ambient Glow -->
+    <filter id="neon-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+    </filter>
+
+    <!-- Primary Royal Blue Gradient -->
+    <linearGradient id="royal-blue-primary" x1="15%" y1="10%" x2="85%" y2="90%">
+      <stop offset="0%" stop-color="#00D2FF"/>
+      <stop offset="25%" stop-color="#0096C7"/>
+      <stop offset="50%" stop-color="#0077B6"/>
+      <stop offset="75%" stop-color="#0047AB"/>
+      <stop offset="100%" stop-color="#0A1931"/>
+    </linearGradient>
+
+    <!-- Chiseled Left Facet (Light Refraction) -->
+    <linearGradient id="facet-left" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00D2FF" stop-opacity="0.85"/>
+      <stop offset="50%" stop-color="#0077B6" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#0047AB" stop-opacity="0.2"/>
+    </linearGradient>
+
+    <!-- Chiseled Right Facet (Deep Royal Shadow) -->
+    <linearGradient id="facet-right" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0056B3" stop-opacity="0.1"/>
+      <stop offset="60%" stop-color="#002875" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#051124" stop-opacity="0.7"/>
+    </linearGradient>
+
+    <!-- Neon Accent Outer Rim -->
+    <linearGradient id="neon-rim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="40%" stop-color="#0077B6"/>
+      <stop offset="70%" stop-color="#0047AB"/>
+      <stop offset="100%" stop-color="#00D2FF"/>
+    </linearGradient>
+
+    <!-- Inner Core Specular Highlight -->
+    <linearGradient id="specular-top" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.55"/>
+      <stop offset="30%" stop-color="#E0F7FF" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#00D2FF" stop-opacity="0.0"/>
+    </linearGradient>
+  </defs>
+
+  <g filter="url(#drop-shadow)">
+    <!-- Ambient Neon Outer Glow Silhouette -->
+    <polygon points="256,60 452,256 256,452 60,256"
+             fill="none"
+             stroke="#00D2FF"
+             stroke-width="12"
+             stroke-linejoin="round"
+             opacity="0.35"
+             filter="url(#neon-glow)"/>
+
+    <!-- Main Solid OMEN Diamond Body -->
+    <polygon points="256,64 448,256 256,448 64,256"
+             fill="url(#royal-blue-primary)"
+             stroke="url(#neon-rim)"
+             stroke-width="5"
+             stroke-linejoin="round"/>
+
+    <!-- Left Chiseled Facet -->
+    <polygon points="256,65 65,256 256,447 256,256"
+             fill="url(#facet-left)"/>
+
+    <!-- Right Chiseled Facet -->
+    <polygon points="256,65 447,256 256,447 256,256"
+             fill="url(#facet-right)"/>
+
+    <!-- Center Spine Crest Highlight -->
+    <line x1="256" y1="66" x2="256" y2="446"
+          stroke="#7DD3FC"
+          stroke-width="2"
+          stroke-linecap="round"
+          opacity="0.6"/>
+
+    <!-- Top Apex Specular Glow -->
+    <polygon points="256,66 312,122 256,150 200,122"
+             fill="url(#specular-top)"
+             opacity="0.8"/>
+  </g>
+</svg>

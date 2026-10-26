@@ -1,0 +1,14 @@
+[Unit]
+Description=MyOmen Background GUI & Telemetry App
+PartOf=graphical-session.target
+After=graphical-session.target omen-sense-apply.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/omen-sense gui --tray
+Restart=on-failure
+RestartSec=3s
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=graphical-session.target

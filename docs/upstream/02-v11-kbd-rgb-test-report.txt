@@ -1,0 +1,96 @@
+DRAFT - not sent. Send as a reply (keep threading) with your mail client or
+git send-email --in-reply-to. Fill in your name/e-mail. Plain text, no HTML,
+lines under 80 columns (they are).
+
+To: Konenko Andrey Viktorovich <admin@aquinas.su>
+Cc: platform-driver-x86@vger.kernel.org,
+    Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>,
+    Hans de Goede <johannes.goede@oss.qualcomm.com>
+In-Reply-To: <0Ja9VPr1QTSihXZrbKAgzg@aquinas.su>
+Subject: Re: [PATCH v11] platform/x86: hp-wmi: Add multicolor LED support for HP keyboard backlight
+
+Tested v11 on an OMEN by HP Laptop 15-dh1xxx (board 8746, BIOS F.44),
+kernel 7.0.14 (Ubuntu 7.0.0-34), built out of tree. The patch applies with
+offsets; the #define hunk needs fuzz 3.
+
+Works:
+- keyboard type query 0x2B returns 1; four zones register as
+  hp::kbd_zoned_backlight-{right,center,left,wasd}
+- the colour-table write matches what OMEN Gaming Hub sends on this machine
+  (128 bytes, byte 0 = 3, RGB at 25..36; backlight on = 0xE4)
+
+Four problems, all reproduced here. The first is a firmware bug that v11's
+read-modify-write exposes, so it may hit other boards with the same ASL.
+
+1. The colour-table read returns the wrong blue for zone 0.
+
+   In this board's DSDT, LM02 (0x20009 type 0x02) fills byte 0x1B from Z02B,
+   not Z01B:
+
+       DerefOf (Local0 [0x02]) [0x1B] = ^^PCI0.LPCB.EC0.Z02B
+
+   LM03 (the write) uses Z01B correctly. hp_kbd_backlight_set_rgb_color()
+   reads the table, changes one zone and writes it all back, so every write
+   to zones 1-3 copies zone 1's blue into zone 0. Read through ec_sys
+   (read-only) with zone 0 = 02 0a e7 and zone 1 = 17 ed 07:
+
+       before:                     EC[0x08..0x0d] = 02 0a e7 17 ed 07
+       write zone 2, same colour:  EC[0x08..0x0d] = 02 0a 07 17 ed 07
+       write zone 0:               EC[0x08..0x0d] = 02 0a e7 17 ed 07
+
+   Plain colour changes leave zone 0 wrong until it is written again, and
+   anything that writes zones in turn (an animation, OpenRGB) makes zone 0
+   flash. OMEN Gaming Hub is not affected: it builds the table from its own
+   copy and never reads it first.
+
+   What fixed it here: build the table from subled_info[].brightness of all
+   zones, with byte 0 = 3 and no read, which is also one WMI call per write
+   instead of three. Seeding zone 0's blue from ec_read(0x0a) at probe
+   covers the one read that is left.
+
+2. Zone writes can interleave.
+
+   Each LED's brightness_set_blocking runs from its own work item, so writes
+   to different zones can run at once, and each is a read-modify-write of
+   the same table with no lock. ftrace over 81 zone writes (animation at
+   5 frames/s) showed 2 overlapping on different CPUs; an overlap loses one
+   zone's update. A mutex around the calculation and the write fixed it.
+
+3. Any colour write turns the backlight back on.
+
+   On this board the backlight key (F4) is handled by the firmware alone:
+   hp_wmi_notify saw 0 calls in 45 s of pressing it, and
+   brightness_hw_changed never gets a value. hp_kbd_set_brightness() calls
+   hp_kbd_backlight_is_on() and switches the backlight on whenever it finds
+   it off, so while anything writes colours the key cannot keep the
+   keyboard dark. Switching it on only when a zone goes from 0 to lit (the
+   driver has to remember the last level itself - led_cdev->brightness is
+   already updated when the callback runs) fixed it.
+
+4. There is no real "off".
+
+   brightness 0 writes black, but 0x05/0x64 is never sent. OMEN Gaming Hub
+   sends type 0x05 with 0x64 to turn the backlight off on this machine;
+   LM05 only clears KBLS (EC 0xa1 bit 0) and raises no event. Sending it
+   when every zone reaches 0 gave a real off here (KBLS read back 1 -> 0 ->
+   1 with a zone lit again).
+
+And the earlier one: hp_mc_leds_register() sets every subled's .brightness
+to LED_FULL. With the backlight off, writing one zone turns the backlight on
+and rewrites the others from those values, so they turn white while their
+sysfs brightness still reads 0. Fix used here:
+
+-			mc_subled_info[i].brightness = LED_FULL;
++			mc_subled_info[i].brightness = led_cdev->brightness ?
++						       color_table[off] : 0;
+
+Also: hp_kbd_set_brightness() assigns led_cdev->brightness itself. On
+suspend the LED core calls it with 0 without changing the saved level, so
+the assignment overwrites it and resume restores 0. Leaving the field to the
+LED core avoided that here; the keyboard comes back lit after S3.
+
+Everything above is limited to board 8746 in my local build (DMI check),
+so I can't say which of 1, 3 and 4 hold on other boards. I can test a v12 on
+this machine.
+
+Tested-by: <Your Name> <you@example.com>

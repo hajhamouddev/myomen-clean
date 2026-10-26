@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = "remove" ] || [ "$1" = "deconfigure" ]; then
+    # Stop user systemd service if running
+    if command -v systemctl >/dev/null 2>&1; then
+        systemctl --user stop myomen.service 2>/dev/null || true
+    fi
+
+    # Kill any lingering daemon process
+    pkill -f "myomen.*--tray" 2>/dev/null || true
+fi
+
+exit 0

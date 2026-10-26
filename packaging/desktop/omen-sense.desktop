@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=MyOmen
+GenericName=Hardware Control
+Comment=Power mode, fan and keyboard lighting control for MyOmen
+Exec=omen-sense
+Icon=omen-sense
+Terminal=false
+Categories=Settings;HardwareSettings;
+Keywords=fan;rgb;keyboard;lighting;temperature;omen;hp;power;
+StartupWMClass=omen-sense

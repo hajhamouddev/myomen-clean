@@ -1,0 +1,48 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = "configure" ]; then
+    # Reload and trigger udev rules
+    if command -v udevadm >/dev/null 2>&1; then
+        udevadm control --reload-rules || true
+        udevadm trigger || true
+    fi
+
+    # Update desktop database
+    if command -v update-desktop-database >/dev/null 2>&1; then
+        update-desktop-database /usr/share/applications 2>/dev/null || true
+    fi
+
+    # Update icon cache
+    if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+        gtk-update-icon-cache -f -t /usr/share/icons/hicolor 2>/dev/null || true
+    fi
+
+    # Apply tmpfiles rules if available
+    if command -v systemd-tmpfiles >/dev/null 2>&1; then
+        systemd-tmpfiles --create /usr/lib/tmpfiles.d/myomen.conf 2>/dev/null || true
+    fi
+
+    # Ensure ACPI platform profile nodes, WMI attributes, and RAPL constraint limits have non-root write access
+    for node in \
+        /sys/firmware/acpi/platform_profile \
+        /sys/class/platform-profile/*/profile \
+        /sys/devices/platform/hp-wmi/platform-profile/*/profile \
+        /sys/class/powercap/intel-rapl*/constraint_*_power_limit_uw \
+        /sys/class/powercap/intel-rapl*/*/constraint_*_power_limit_uw \
+        /sys/devices/virtual/powercap/intel-rapl*/constraint_*_power_limit_uw \
+        /sys/devices/virtual/powercap/intel-rapl*/*/constraint_*_power_limit_uw \
+        /sys/devices/virtual/powercap/intel-rapl*/*/*/constraint_*_power_limit_uw; do
+        if [ -e "$node" ]; then
+            chgrp plugdev "$node" 2>/dev/null || chgrp users "$node" 2>/dev/null || true
+            chmod 0664 "$node" 2>/dev/null || chmod a+w "$node" 2>/dev/null || true
+        fi
+    done
+
+    # Enable systemd user service environment reload
+    if command -v systemctl >/dev/null 2>&1; then
+        systemctl --global daemon-reload 2>/dev/null || true
+    fi
+fi
+
+exit 0
