@@ -1,6 +1,6 @@
 # PROJECT_STATE
 
-MyOmen is a Linux control and monitoring application for supported HP OMEN hardware, adapted from orion-sense as documented in APP.md.
+MyOmen is a Linux control and monitoring application for supported HP OMEN hardware, developed by Ahmad Hajhamoud as a continuation of his own earlier orion-sense project for an Acer Predator desktop. The Acer version is unpublished; this HP OMEN version was subsequently developed and renamed as MyOmen.
 
 This publication snapshot contains application source, packaging, tests, licenses and selected technical documentation. Raw ACPI/firmware dumps and binary research captures are excluded. Personal device identifiers, account paths and private worklogs have been removed from the source snapshot. The private development repository retains the original history.
 
