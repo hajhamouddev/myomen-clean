@@ -5,8 +5,13 @@ A Linux replacement for OMEN Gaming Hub on the **HP OMEN 15-dh1xxx, board
 `hp-wmi` driver (`driver/INSTALL.md`). Install the driver first; without it
 the app has nothing to control.
 
-It is adapted from orion-sense, the Acer Predator Orion app, and keeps the same
-layout and safety rules.
+Ahmad Hajhamoud originally developed this project for his own Acer Predator
+desktop under the name orion-sense. He later continued development for his
+HP OMEN laptop and renamed and extended the application as MyOmen. The earlier
+Acer version was not developed further and is not published. Both versions are
+his own development work; the shared layout and safety rules reflect that
+project history. This authorship clarification was supplied by Ahmad on
+26 October 2026.
 
 ## What it does
 
