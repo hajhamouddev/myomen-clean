@@ -34,3 +34,12 @@ credentials.json
 /research/bios-settings.txt
 /research/private/
 /private/
+
+# Local agent/assistant config (kept out of the public repo)
+.claude
+AGENTS.md
+GEMINI.md
+PROJECT_STATE.md
+docs/research-prompts.md
+tools/export-chat.py
+tools/backup.sh
