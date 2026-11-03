@@ -4,6 +4,11 @@ on:
   push:
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. 1.0.0)'
+        required: true
+        default: '1.0.0'
 
 permissions:
   contents: write
@@ -24,8 +29,8 @@ jobs:
         env:
           QT_QPA_PLATFORM: offscreen
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          [ "$GITHUB_REF_TYPE" = "tag" ] || VERSION="0.0.0-dev"
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then VERSION="${GITHUB_REF_NAME#v}"; else VERSION="${{ inputs.version }}"; fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           bash packaging/build-deb.sh "$VERSION" amd64
           (cd dist && sha256sum *.deb > SHA256SUMS)
 
@@ -35,10 +40,12 @@ jobs:
         run: python3 tests/test_logic.py
 
       - name: Publish GitHub release
-        if: github.ref_type == 'tag'
         uses: softprops/action-gh-release@v2
         with:
-          name: MyOmen ${{ github.ref_name }}
+          tag_name: v${{ env.VERSION }}
+          target_commitish: ${{ github.sha }}
+          name: MyOmen v${{ env.VERSION }}
+          make_latest: true
           files: |
             dist/*.deb
             dist/SHA256SUMS
