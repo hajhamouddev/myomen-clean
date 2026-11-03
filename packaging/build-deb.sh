@@ -72,6 +72,10 @@ install -m 644 "${REPO_ROOT}/gui/omensense/icons/myomen.svg" "${STAGING_DIR}/usr
 mkdir -p "${STAGING_DIR}/usr/share/pixmaps"
 install -m 644 "${REPO_ROOT}/gui/omensense/icons/myomen.svg" "${STAGING_DIR}/usr/share/pixmaps/myomen.svg"
 
+# License (Debian policy: /usr/share/doc/<pkg>/copyright)
+mkdir -p "${STAGING_DIR}/usr/share/doc/${PACKAGE_NAME}"
+install -m 644 "${REPO_ROOT}/LICENSE" "${STAGING_DIR}/usr/share/doc/${PACKAGE_NAME}/copyright"
+
 # Generate raster PNG derivatives for hicolor theme
 python3 - <<EOF
 from PySide6 import QtWidgets, QtGui, QtCore

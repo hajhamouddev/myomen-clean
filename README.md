@@ -18,7 +18,8 @@ Review status (26 October 2026): `python3 tests/test_logic.py` completed 113 pas
 [![Linux](https://img.shields.io/badge/Platform-Linux_x86__64-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://kernel.org)
 [![Hardware](https://img.shields.io/badge/Hardware-HP_OMEN_15--dh1xxx-FF1A35?style=for-the-badge&logo=hp&logoColor=white)](https://hp.com)
 [![NVIDIA](https://img.shields.io/badge/GPU-RTX_2060_Mobile-76B900?style=for-the-badge&logo=nvidia&logoColor=white)](https://nvidia.com)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
+[![License: Freeware](https://img.shields.io/badge/License-Freeware-FF1A35.svg?style=for-the-badge)](LICENSE)
+[![Download](https://img.shields.io/github/v/release/hajhamouddev/myomen-clean?style=for-the-badge&label=Download&color=2ea043)](https://github.com/hajhamouddev/myomen-clean/releases/latest)
 
 <br/>
 
@@ -120,6 +121,17 @@ flowchart TD
 
 ---
 
+## ⬇️ Download (free)
+
+Grab the latest `.deb` from **[Releases](https://github.com/hajhamouddev/myomen-clean/releases/latest)**:
+
+```bash
+sudo apt install ./myomen_*_amd64.deb
+myomen
+```
+
+> Requires an HP OMEN 15-dh1xxx (board 8746). Full fan/RGB control needs the patched `hp-wmi` driver in [`driver/`](driver/INSTALL.md).
+
 ## 🚀 Installation & Deployment
 
 ### Universal One-Click Automated Installer
@@ -193,5 +205,6 @@ myomen light --layout ice
 
 ## 🛡️ License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.  
-Copyright (c) 2026 Haj Hamoud.
+MyOmen is **free to download and use**, but it is **not open source**. Selling, rebranding, modifying, or reusing its code in other products requires written permission. Full terms are in [LICENSE](LICENSE).
+
+Copyright (c) 2026 Ahmad Haj Hamoud. All rights reserved.
